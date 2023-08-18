@@ -11,18 +11,18 @@ import io.flutter.plugin.common.MethodChannel.Result
 /** FlChannelPlugin */
 class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var channel: MethodChannel
-    private lateinit var pluginBinding: FlutterPlugin.FlutterPluginBinding
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        pluginBinding = binding
         channel = MethodChannel(binding.binaryMessenger, "fl_channel")
         channel.setMethodCallHandler(this)
+        FlEvent.setBinaryMessenger(binding.binaryMessenger)
+        FlBasicMessage.setBinaryMessenger(binding.binaryMessenger)
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "startEvent" -> {
-                FlEvent.initialize(pluginBinding.binaryMessenger)
+                FlEvent.initialize()
                 result.success(true)
             }
 
@@ -37,7 +37,7 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
             }
 
             "startBasicMessage" -> {
-                FlBasicMessage.initialize(pluginBinding.binaryMessenger)
+                FlBasicMessage.initialize()
                 result.success(true)
             }
 
@@ -51,7 +51,7 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
 
             "sendBasicMessage" -> {
                 FlBasicMessage.send(call.arguments) { reply ->
-                    FlBasicMessage.send("Received reply：($reply),from Android", null)
+                    FlBasicMessage.send("Received reply：($reply),from Android")
                 }
                 result.success(true)
             }

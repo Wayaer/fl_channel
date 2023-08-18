@@ -3,7 +3,6 @@ import FlutterMacOS
 
 public class FlChannelPlugin: NSObject, FlutterPlugin {
     var channel: FlutterMethodChannel
-    var messenger: FlutterBinaryMessenger
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "fl_channel", binaryMessenger: registrar.messenger)
@@ -12,21 +11,42 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
     }
 
     public init(_ messenger: FlutterBinaryMessenger, _ channel: FlutterMethodChannel) {
-        self.messenger = messenger
         self.channel = channel
         super.init()
+        FlEvent.shared.setBinaryMessenger(messenger)
+        FlBasicMessage.shared.setBinaryMessenger(messenger)
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "startEvent":
-            FlEvent.shared.initialize(messenger)
+            FlEvent.shared.initialize()
             result(true)
         case "sendEvent":
-            FlEvent.shared.send(arguments: call.arguments)
+            FlEvent.shared.send(call.arguments)
             result(true)
         case "stopEvent":
             FlEvent.shared.dispose()
+            result(true)
+        case "startBasicMessage":
+            FlBasicMessage.shared.initialize()
+            result(true)
+        case "basicMessageAddListener":
+            FlBasicMessage.shared.addListener {
+                message, reply in
+                print("BasicMessageListener==", "Received message：\(String(describing: message))")
+                reply("(Received message：\(String(describing: message))),Reply from iOS")
+            }
+            result(true)
+
+        case "sendBasicMessage":
+            FlBasicMessage.shared.send(call.arguments, reply: {
+                reply in
+                FlBasicMessage.shared.send("Received reply：(\(String(describing: reply))),from iOS")
+            })
+            result(true)
+        case "stopBasicMessage":
+            FlBasicMessage.shared.dispose()
             result(true)
         default:
             result(FlutterMethodNotImplemented)

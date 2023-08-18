@@ -9,20 +9,25 @@ import io.flutter.plugin.common.StandardMessageCodec
 object FlBasicMessage {
     private var basicMessage: BasicMessageChannel<Any>? = null
     private val handler = Handler(Looper.getMainLooper())
+    private lateinit var binaryMessenger: BinaryMessenger
 
-    fun initialize(binaryMessenger: BinaryMessenger) {
+    fun setBinaryMessenger(binaryMessenger: BinaryMessenger) {
+        this.binaryMessenger = binaryMessenger
+    }
+
+    fun initialize() {
         basicMessage = BasicMessageChannel(
             binaryMessenger, "fl_channel/basic_message", StandardMessageCodec.INSTANCE
         )
     }
 
-    fun addListener(handler: BasicMessageChannel.MessageHandler<Any>?) {
+    fun addListener(handler: BasicMessageChannel.MessageHandler<Any>? = null) {
         basicMessage.let {
             basicMessage!!.setMessageHandler(handler)
         }
     }
 
-    fun send(args: Any, callback: BasicMessageChannel.Reply<Any>?) {
+    fun send(args: Any, callback: BasicMessageChannel.Reply<Any>? = null) {
         basicMessage.let {
             handler.post {
                 basicMessage!!.send(args, callback)
@@ -31,6 +36,7 @@ object FlBasicMessage {
     }
 
     fun dispose() {
+        basicMessage?.setMessageHandler(null)
         basicMessage = null
     }
 }

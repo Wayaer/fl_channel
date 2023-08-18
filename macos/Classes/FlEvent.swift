@@ -2,19 +2,24 @@ import FlutterMacOS
 import Foundation
 
 public class FlEvent: NSObject, FlutterStreamHandler {
-    private var eventSink: FlutterEventSink?
-    private var channel: FlutterEventChannel?
-
     static let shared = FlEvent()
 
-    func initialize(_ messenger: FlutterBinaryMessenger) {
-        channel = FlutterEventChannel(name: "fl_channel/event", binaryMessenger: messenger)
+    private var eventSink: FlutterEventSink?
+    private var channel: FlutterEventChannel?
+    private var messenger: FlutterBinaryMessenger?
+
+    func setBinaryMessenger(_ messenger: FlutterBinaryMessenger) {
+        self.messenger = messenger
+    }
+
+    func initialize() {
+        channel = FlutterEventChannel(name: "fl_channel/event", binaryMessenger: messenger!)
         channel!.setStreamHandler(self)
     }
 
-    func send(arguments: Any?) {
+    func send(_ args: Any?) {
         DispatchQueue.main.async {
-            self.eventSink?(arguments)
+            self.eventSink?(args)
         }
     }
 

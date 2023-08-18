@@ -10,8 +10,13 @@ object FlEvent : EventChannel.StreamHandler {
     private var eventSink: EventChannel.EventSink? = null
     private var eventChannel: EventChannel? = null
     private val handler = Handler(Looper.getMainLooper())
+    private lateinit var binaryMessenger: BinaryMessenger
 
-    fun initialize(binaryMessenger: BinaryMessenger) {
+    fun setBinaryMessenger(binaryMessenger: BinaryMessenger) {
+        this.binaryMessenger = binaryMessenger
+    }
+
+    fun initialize() {
         eventChannel = EventChannel(binaryMessenger, "fl_channel/event")
         eventChannel!!.setStreamHandler(this)
     }
