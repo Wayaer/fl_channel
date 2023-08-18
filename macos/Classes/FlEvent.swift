@@ -13,18 +13,18 @@ public class FlEvent: NSObject, FlutterStreamHandler {
         self.messenger = messenger
     }
 
-   public func initialize() {
+    public func initialize() {
         channel = FlutterEventChannel(name: "fl_channel/event", binaryMessenger: messenger!)
         channel!.setStreamHandler(self)
     }
 
-   public func send(_ args: Any?) {
+    public func send(_ args: Any?) {
         DispatchQueue.main.async {
             self.eventSink?(args)
         }
     }
 
-   public func dispose() {
+    public func dispose() {
         eventSink = nil
         channel?.setStreamHandler(nil)
         channel = nil

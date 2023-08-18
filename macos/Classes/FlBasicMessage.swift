@@ -13,15 +13,15 @@ public class FlBasicMessage: NSObject {
         self.messenger = messenger
     }
 
-  public func initialize() {
+    public func initialize() {
         basicMessage = FlutterBasicMessageChannel(name: "fl_channel/basic_message", binaryMessenger: messenger!)
     }
 
-   public func addListener(handler: FlutterMessageHandler?) {
+    public func addListener(handler: FlutterMessageHandler?) {
         basicMessage?.setMessageHandler(handler)
     }
 
-   public func send(_ args: Any?, reply: FlutterReply? = nil) {
+    public func send(_ args: Any?, reply: FlutterReply? = nil) {
         if basicMessage != nil {
             DispatchQueue.main.async {
                 self.basicMessage!.sendMessage(args, reply: reply)
@@ -29,7 +29,7 @@ public class FlBasicMessage: NSObject {
         }
     }
 
-   public func dispose() {
+    public func dispose() {
         basicMessage?.setMessageHandler(nil)
         basicMessage = nil
     }
