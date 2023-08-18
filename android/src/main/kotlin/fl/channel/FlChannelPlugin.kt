@@ -10,21 +10,35 @@ import io.flutter.plugin.common.MethodChannel.Result
 /** FlChannelPlugin */
 class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var channel: MethodChannel
+    private lateinit var pluginBinding: FlutterPlugin.FlutterPluginBinding
 
-    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "fl_channel")
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        pluginBinding = binding
+        channel = MethodChannel(binding.binaryMessenger, "fl_channel")
         channel.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-        } else {
-            result.notImplemented()
+        when (call.method) {
+            "startEvent" -> {
+                FlEvent.initialize(pluginBinding.binaryMessenger)
+                result.success(true)
+            }
+
+            "sendEvent" -> {
+                FlEvent.send(call.arguments)
+                result.success(true)
+            }
+
+            "stopEvent" -> {
+                FlEvent.dispose()
+                result.success(true)
+            }
         }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        FlEvent.dispose()
     }
 }
