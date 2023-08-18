@@ -17,6 +17,7 @@ class FlBasicMessage {
   /// 初始化消息通道
   Future<bool> initialize<T>() async {
     if (!_supportPlatform) return false;
+    if (_messageChannel != null) return true;
     bool? state =
         await FlChannel()._channel.invokeMethod<bool?>('startBasicMessage');
     state ??= false;
@@ -59,7 +60,7 @@ class FlBasicMessage {
             .invokeMethod<bool?>('sendBasicMessage', message);
         return state ?? false;
       } catch (e) {
-        print(e);
+        debugPrint(e.toString());
       }
     }
     return false;

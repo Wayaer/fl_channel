@@ -30,6 +30,7 @@ class FlEvent {
   /// 初始化消息通道
   Future<bool> initialize() async {
     if (!_supportPlatform) return false;
+    if (_eventChannel != null) return true;
     bool? state = await FlChannel()._channel.invokeMethod<bool?>('startEvent');
     state ??= false;
     if (state && _eventChannel == null) {

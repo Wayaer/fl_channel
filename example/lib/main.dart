@@ -8,31 +8,31 @@ void main() {
       darkTheme: ThemeData.dark(useMaterial3: true),
       debugShowCheckedModeBanner: false,
       title: 'FlChannel',
-      home: const App()));
+      home: Scaffold(appBar: AppBarText('FlChannel'), body: const App())));
 }
+
+final ValueNotifier<List<String>> texts =
+    ValueNotifier<List<String>>(<String>[]);
 
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBarText('FlChannel'),
-        body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          ElevatedText(
-              text: 'FlEvent',
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const FlEventPage()));
-              }),
-          ElevatedText(
-              text: 'FlBasicMessage',
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const FlBasicMessagePage()));
-              }),
-          const SizedBox(width: double.infinity),
-        ]));
+    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      const SizedBox(width: double.infinity, child: Card(child: FlEventPage())),
+      const SizedBox(
+          width: double.infinity, child: Card(child: FlBasicMessagePage())),
+      Expanded(
+          child: ValueListenableBuilder<List<String>>(
+              valueListenable: texts,
+              builder: (_, List<String> value, __) {
+                return ListView.builder(
+                    itemCount: value.length,
+                    itemBuilder: (_, int index) =>
+                        TextBox(index, value[index]));
+              }))
+    ]);
   }
 }
 
@@ -48,8 +48,7 @@ class TextBox extends StatelessWidget {
             value.toString().isNotEmpty &&
             value.toString() != 'null',
         child: Container(
-            margin: const EdgeInsets.all(10),
-            child: Text('$keyName = $value')));
+            margin: const EdgeInsets.all(8), child: Text('$keyName = $value')));
   }
 }
 

@@ -10,78 +10,68 @@ class FlEventPage extends StatefulWidget {
 }
 
 class _FlEventPageState extends State<FlEventPage> {
-  String stateText = '未初始化';
-  ValueNotifier<List<String>> text = ValueNotifier<List<String>>(<String>[]);
+  String stateText = 'uninitialized';
   FlEvent event = FlEvent();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBarText('FlEvent 消息通道'),
-        body: Column(children: [
-          TextBox('state', stateText),
-          Wrap(spacing: 10, direction: Axis.horizontal, children: <Widget>[
-            ElevatedText(onPressed: start, text: '注册消息通道'),
-            ElevatedText(onPressed: addListener, text: '添加消息监听'),
-            ElevatedText(onPressed: send, text: '发送消息'),
-            ElevatedText(
-                onPressed: () {
-                  final bool state = event.pause();
-                  stateText = '暂停消息流监听 $state';
-                  setState(() {});
-                },
-                text: '暂停消息流监听'),
-            ElevatedText(
-                onPressed: () {
-                  final bool state = event.resume();
-                  stateText = '重新开始监听 $state';
-                  setState(() {});
-                },
-                text: '重新开始监听'),
-            ElevatedText(onPressed: stop, text: '销毁消息通道'),
-          ]),
-          const SizedBox(height: 20),
-          Expanded(
-              child: SafeArea(
-            bottom: true,
-            child: ValueListenableBuilder<List<String>>(
-                valueListenable: text,
-                builder: (_, List<String> value, __) {
-                  return ListView.builder(
-                      itemCount: value.length,
-                      itemBuilder: (_, int index) =>
-                          TextBox(index, value[index]));
-                }),
-          ))
-        ]));
+    return Column(children: [
+      TextBox('FlEvent', stateText),
+      Wrap(spacing: 8, direction: Axis.horizontal, children: <Widget>[
+        ElevatedText(onPressed: initialize, text: 'initialize'),
+        ElevatedText(onPressed: addListener, text: 'addListener'),
+        ElevatedText(onPressed: send, text: 'send msg'),
+        ElevatedText(
+            onPressed: () {
+              final bool state = event.pause();
+              stateText = 'pause $state';
+              setState(() {});
+            },
+            text: 'pause'),
+        ElevatedText(
+            onPressed: () {
+              final bool state = event.resume();
+              stateText = 'resume $state';
+              setState(() {});
+            },
+            text: 'resume'),
+        ElevatedText(onPressed: _dispose, text: 'dispose'),
+      ]),
+    ]);
   }
 
   void addListener() {
     final bool state = event.addListener((dynamic data) {
-      text.value.add(data.toString());
+      addText(data.toString());
     });
-    stateText = '添加监听 $state';
+    stateText = 'add listener $state';
     setState(() {});
   }
 
-  Future<void> start() async {
+  Future<void> initialize() async {
     final bool eventState = await event.initialize();
     if (eventState) {
-      stateText = '初始化成功';
+      stateText = 'initialize successful';
       setState(() {});
     }
   }
 
   Future<void> send() async {
-    final bool status = await event.send('这条消息是从Flutter到Native');
-    stateText = status ? '发送成功' : '发送失败';
+    final bool status = await event.send('Flutter to Native');
+    stateText = status ? 'successful' : 'failed';
     setState(() {});
   }
 
-  Future<void> stop() async {
+  Future<void> _dispose() async {
     final bool status = await event.dispose();
-    stateText = status ? '已销毁' : '销毁失败';
-    text.value.clear();
+    stateText = status ? 'successful' : 'failed';
+    texts.value = [];
     setState(() {});
+  }
+
+  void addText(String text) {
+    final value = [...texts.value];
+    value.add(text);
+    texts.value = value;
   }
 }
