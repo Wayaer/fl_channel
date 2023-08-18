@@ -1,3 +1,4 @@
+import 'package:example/src/basic_message.dart';
 import 'package:example/src/event.dart';
 import 'package:flutter/material.dart';
 
@@ -27,8 +28,8 @@ class App extends StatelessWidget {
           ElevatedText(
               text: 'FlBasicMessage',
               onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const FlEventPage()));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const FlBasicMessagePage()));
               }),
           const SizedBox(width: double.infinity),
         ]));

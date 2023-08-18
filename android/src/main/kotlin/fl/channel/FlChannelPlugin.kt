@@ -1,6 +1,7 @@
 package fl.channel
 
 
+import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -32,6 +33,31 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
 
             "stopEvent" -> {
                 FlEvent.dispose()
+                result.success(true)
+            }
+
+            "startBasicMessage" -> {
+                FlBasicMessage.initialize(pluginBinding.binaryMessenger)
+                result.success(true)
+            }
+
+            "basicMessageAddListener" -> {
+                FlBasicMessage.addListener { message, reply ->
+                    Log.d("BasicMessageListener==", "Received message：$message")
+                    reply.reply("(Received message：$message),Reply from Android")
+                }
+                result.success(true)
+            }
+
+            "sendBasicMessage" -> {
+                FlBasicMessage.send(call.arguments) { reply ->
+                    FlBasicMessage.send("Received reply：($reply),from Android", null)
+                }
+                result.success(true)
+            }
+
+            "stopBasicMessage" -> {
+                FlBasicMessage.dispose()
                 result.success(true)
             }
         }

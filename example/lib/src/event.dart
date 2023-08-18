@@ -3,7 +3,7 @@ import 'package:fl_channel/fl_channel.dart';
 import 'package:flutter/material.dart';
 
 class FlEventPage extends StatefulWidget {
-  const FlEventPage({Key? key}) : super(key: key);
+  const FlEventPage({super.key});
 
   @override
   State<FlEventPage> createState() => _FlEventPageState();
@@ -22,15 +22,7 @@ class _FlEventPageState extends State<FlEventPage> {
           TextBox('state', stateText),
           Wrap(spacing: 10, direction: Axis.horizontal, children: <Widget>[
             ElevatedText(onPressed: start, text: '注册消息通道'),
-            ElevatedText(
-                onPressed: () async {
-                  final bool state = event.addListener((dynamic data) {
-                    text.value.add(data.toString());
-                  });
-                  stateText = '添加监听 $state';
-                  setState(() {});
-                },
-                text: '添加消息监听'),
+            ElevatedText(onPressed: addListener, text: '添加消息监听'),
             ElevatedText(onPressed: send, text: '发送消息'),
             ElevatedText(
                 onPressed: () {
@@ -50,19 +42,26 @@ class _FlEventPageState extends State<FlEventPage> {
           ]),
           const SizedBox(height: 20),
           Expanded(
-            child: SafeArea(
-              bottom: true,
-              child: ValueListenableBuilder<List<String>>(
-                  valueListenable: text,
-                  builder: (_, List<String> value, __) {
-                    return ListView.builder(
-                        itemCount: value.length,
-                        itemBuilder: (_, int index) =>
-                            TextBox(index, value[index]));
-                  }),
-            ),
-          )
+              child: SafeArea(
+            bottom: true,
+            child: ValueListenableBuilder<List<String>>(
+                valueListenable: text,
+                builder: (_, List<String> value, __) {
+                  return ListView.builder(
+                      itemCount: value.length,
+                      itemBuilder: (_, int index) =>
+                          TextBox(index, value[index]));
+                }),
+          ))
         ]));
+  }
+
+  void addListener() {
+    final bool state = event.addListener((dynamic data) {
+      text.value.add(data.toString());
+    });
+    stateText = '添加监听 $state';
+    setState(() {});
   }
 
   Future<void> start() async {
@@ -74,7 +73,7 @@ class _FlEventPageState extends State<FlEventPage> {
   }
 
   Future<void> send() async {
-    final bool status = await event.send('这条消息是从Flutter 传递到原生');
+    final bool status = await event.send('这条消息是从Flutter到Native');
     stateText = status ? '发送成功' : '发送失败';
     setState(() {});
   }

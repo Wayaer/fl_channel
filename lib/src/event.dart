@@ -22,6 +22,8 @@ class FlEvent {
   /// 消息通道
   EventChannel? _eventChannel;
 
+  EventChannel? get eventChannel => _eventChannel;
+
   bool get isPaused =>
       _streamSubscription != null && _streamSubscription!.isPaused;
 
@@ -42,8 +44,7 @@ class FlEvent {
       {FlEventListenError? onError,
       FlEventListenDone? onDone,
       bool? cancelOnError}) {
-    if (!_supportPlatform) return false;
-    if (_eventChannel != null && _stream != null) {
+    if (_supportPlatform && _eventChannel != null && _stream != null) {
       if (_streamSubscription != null) return false;
       try {
         _streamSubscription = _stream!.listen(onData,
@@ -51,7 +52,6 @@ class FlEvent {
         return true;
       } catch (e) {
         debugPrint(e.toString());
-        return false;
       }
     }
     return false;
@@ -59,19 +59,23 @@ class FlEvent {
 
   /// 调用原生方法 发送消息
   Future<bool> send(dynamic arguments) async {
-    if (!_supportPlatform) return false;
-    if (_eventChannel == null ||
-        _streamSubscription == null ||
-        _streamSubscription!.isPaused) return false;
-    final state =
-        await FlChannel()._channel.invokeMethod<bool?>('sendEvent', arguments);
-    return state ?? false;
+    if (_supportPlatform &&
+        _eventChannel != null &&
+        _streamSubscription != null &&
+        !_streamSubscription!.isPaused) {
+      final state = await FlChannel()
+          ._channel
+          .invokeMethod<bool?>('sendEvent', arguments);
+      return state ?? false;
+    }
+    return false;
   }
 
   /// 暂停消息流监听
   bool pause() {
-    if (!_supportPlatform) return false;
-    if (_streamSubscription != null && !_streamSubscription!.isPaused) {
+    if (_supportPlatform &&
+        _streamSubscription != null &&
+        !_streamSubscription!.isPaused) {
       _streamSubscription!.pause();
       return true;
     }
@@ -80,8 +84,9 @@ class FlEvent {
 
   /// 重新开始监听
   bool resume() {
-    if (!_supportPlatform) return false;
-    if (_streamSubscription != null && _streamSubscription!.isPaused) {
+    if (_supportPlatform &&
+        _streamSubscription != null &&
+        _streamSubscription!.isPaused) {
       _streamSubscription!.resume();
       return true;
     }

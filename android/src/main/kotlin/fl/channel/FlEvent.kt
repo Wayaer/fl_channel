@@ -16,9 +16,11 @@ object FlEvent : EventChannel.StreamHandler {
         eventChannel!!.setStreamHandler(this)
     }
 
-    fun send(arguments: Any?) {
-        handler.post {
-            eventSink?.success(arguments)
+    fun send(args: Any?) {
+        eventSink.let {
+            handler.post {
+                eventSink!!.success(args)
+            }
         }
     }
 
