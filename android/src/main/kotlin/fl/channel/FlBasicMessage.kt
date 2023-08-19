@@ -11,7 +11,7 @@ object FlBasicMessage {
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var binaryMessenger: BinaryMessenger
 
-    fun setBinaryMessenger(binaryMessenger: BinaryMessenger) {
+    fun binding(binaryMessenger: BinaryMessenger) {
         this.binaryMessenger = binaryMessenger
     }
 

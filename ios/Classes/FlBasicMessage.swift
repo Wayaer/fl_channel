@@ -8,7 +8,7 @@ public class FlBasicMessage: NSObject {
     
     static public let shared = FlBasicMessage()
 
-    func setBinaryMessenger(_ messenger: FlutterBinaryMessenger) {
+    func binding(_ messenger: FlutterBinaryMessenger) {
         self.messenger = messenger
     }
 

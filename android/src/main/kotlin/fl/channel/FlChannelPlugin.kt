@@ -15,8 +15,8 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "fl_channel")
         channel.setMethodCallHandler(this)
-        FlEvent.setBinaryMessenger(binding.binaryMessenger)
-        FlBasicMessage.setBinaryMessenger(binding.binaryMessenger)
+        FlEvent.binding(binding.binaryMessenger)
+        FlBasicMessage.binding(binding.binaryMessenger)
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {

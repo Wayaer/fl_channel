@@ -13,8 +13,8 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
     public init(_ messenger: FlutterBinaryMessenger, _ channel: FlutterMethodChannel) {
         self.channel = channel
         super.init()
-        FlEvent.shared.setBinaryMessenger(messenger)
-        FlBasicMessage.shared.setBinaryMessenger(messenger)
+        FlEvent.shared.binding(messenger)
+        FlBasicMessage.shared.binding(messenger)
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

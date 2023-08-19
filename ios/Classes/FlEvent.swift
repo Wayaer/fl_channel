@@ -9,7 +9,7 @@ public class FlEvent: NSObject, FlutterStreamHandler {
 
     static public let shared = FlEvent()
 
-    func setBinaryMessenger(_ messenger: FlutterBinaryMessenger) {
+    func binding(_ messenger: FlutterBinaryMessenger) {
         self.messenger = messenger
     }
 
