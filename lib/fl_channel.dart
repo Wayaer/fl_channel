@@ -9,6 +9,8 @@ part 'src/event.dart';
 
 part 'src/basic_message.dart';
 
+part 'src/data_stream.dart';
+
 class FlChannel {
   factory FlChannel() => _singleton ??= FlChannel._();
 
