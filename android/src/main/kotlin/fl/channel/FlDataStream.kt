@@ -2,6 +2,8 @@ package fl.channel
 
 typealias FlDataStreamHandler<T> = (T) -> Unit
 
+typealias FlDataStreamHandlerCancel = () -> Unit
+
 // 自定义数据流管理器
 class FlDataStream<T> {
 
@@ -15,7 +17,7 @@ class FlDataStream<T> {
     }
 
     // 监听数据
-    fun listen(handler: FlDataStreamHandler<T>): () -> Unit {
+    fun listen(handler: FlDataStreamHandler<T>): FlDataStreamHandlerCancel {
         dataHandlers.add(handler)
         return { cancel(handler) }
     }
