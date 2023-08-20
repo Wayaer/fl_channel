@@ -1,6 +1,6 @@
 typealias FlDataStreamHandler<T> = (T) -> Void
 
-class FlDataStreamHandlerWrapper<T> {
+public class FlDataStreamHandlerWrapper<T> {
     let handler: FlDataStreamHandler<T>
 
     init(handler: @escaping (T) -> Void) {
@@ -8,7 +8,7 @@ class FlDataStreamHandlerWrapper<T> {
     }
 }
 
-class FlDataStream<T> {
+public class FlDataStream<T> {
     private var dataHandlers: [FlDataStreamHandlerWrapper<T>] = []
 
     // 发送数据
