@@ -1,35 +1,35 @@
-typealias FlDataStreamHandler<T> = (T) -> Void
+public typealias FlDataStreamHandler<T> = (T) -> Void
+public typealias FlDataStreamHandlerCancel = () -> Void
 
-public class FlDataStreamHandlerWrapper<T> {
+public class FlDataStreamHandlerWrapper<T>: NSObject {
     let handler: FlDataStreamHandler<T>
 
-    init(handler: @escaping (T) -> Void) {
+    init(_ handler: @escaping FlDataStreamHandler<T>) {
         self.handler = handler
     }
 }
 
-public class FlDataStream<T> {
-    private var dataHandlers: [FlDataStreamHandlerWrapper<T>] = []
+public class FlDataStream<T>: NSObject {
+    public var dataHandlers: [FlDataStreamHandlerWrapper<T>] = []
 
     // 发送数据
-    func send(data: T) {
+    public func send(_ data: T) {
         for wrapper in dataHandlers {
             wrapper.handler(data)
         }
     }
 
     // 监听数据
-    @discardableResult
-    func listen(handler: @escaping FlDataStreamHandler<T>) -> () -> Void {
-        let wrapper = FlDataStreamHandlerWrapper<T>(handler: handler)
+    public func listen(_ handler: @escaping FlDataStreamHandler<T>) -> FlDataStreamHandlerCancel {
+        let wrapper = FlDataStreamHandlerWrapper<T>(handler)
         dataHandlers.append(wrapper)
         return { [weak self] in
-            self?.cancel(wrapper: wrapper)
+            self?.cancel(wrapper)
         }
     }
 
     // 取消监听
-    private func cancel(wrapper: FlDataStreamHandlerWrapper<T>) {
+    public func cancel(_ wrapper: FlDataStreamHandlerWrapper<T>) {
         if let index = dataHandlers.firstIndex(where: { $0 === wrapper }) {
             dataHandlers.remove(at: index)
         }
