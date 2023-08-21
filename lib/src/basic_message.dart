@@ -38,9 +38,8 @@ class FlBasicMessage {
   }
 
   /// 销毁消息通道
-  Future<bool> dispose() async {
+  Future<void> dispose() async {
     _messageChannel?.setMessageHandler(null);
     _messageChannel = null;
-    return false;
   }
 }

@@ -9,7 +9,7 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "fl_channel", binaryMessenger: registrar.messenger())
-        let instance = FlChannelPlugin(registrar.messenger(), channel)
+        let instance = FlChannelPlugin(registrar.messenger, channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
