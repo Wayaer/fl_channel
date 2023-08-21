@@ -3,78 +3,44 @@ part of '../fl_channel.dart';
 typedef FlBasicMessageHandler = Future<dynamic> Function(dynamic message);
 
 class FlBasicMessage {
-  factory FlBasicMessage() => _singleton ??= FlBasicMessage._();
+  final String name;
 
-  FlBasicMessage._();
-
-  static FlBasicMessage? _singleton;
+  FlBasicMessage(this.name);
 
   /// 消息通道
   BasicMessageChannel<dynamic>? _messageChannel;
 
   BasicMessageChannel<dynamic>? get messageChannel => _messageChannel;
 
+  bool get isInitialize => _messageChannel != null;
+
   /// 初始化消息通道
-  Future<bool> initialize<T>() async {
-    if (!_supportPlatform) return false;
-    if (_messageChannel != null) return true;
-    bool? state =
-        await FlChannel()._channel.invokeMethod<bool?>('startBasicMessage');
-    state ??= false;
-    if (state && _messageChannel == null) {
-      _messageChannel = const BasicMessageChannel(
-          'fl_channel/basic_message', StandardMessageCodec());
-    }
-    return state && _messageChannel != null;
+  Future<FlBasicMessage?> initialize() async {
+    if (!_supportPlatform) return null;
+    _messageChannel ??= BasicMessageChannel(name, const StandardMessageCodec());
+    return this;
   }
 
   /// 添加消息监听
-  bool addListener(FlBasicMessageHandler handler) {
-    if (_supportPlatform && _messageChannel != null) {
-      try {
-        FlChannel()._channel.invokeMethod<bool?>('basicMessageAddListener');
-        _messageChannel!.setMessageHandler(handler);
-        return true;
-      } catch (e) {
-        debugPrint(e.toString());
-      }
+  bool setMessageHandler(FlBasicMessageHandler handler) {
+    if (_supportPlatform && isInitialize) {
+      _messageChannel!.setMessageHandler(handler);
     }
-    return false;
+    return isInitialize;
   }
 
   /// 向Native发送消息
   Future<dynamic> send(dynamic message) async {
-    if (_supportPlatform && _messageChannel != null) {
-      final result = await _messageChannel!.send(message);
-      return result;
+    if (_supportPlatform && isInitialize) {
+      return await _messageChannel!.send(message);
     }
     return null;
   }
 
-  /// 向Native发送消息
-  Future<bool> sendFromNative(dynamic message) async {
-    if (_supportPlatform && _messageChannel != null) {
-      try {
-        final state = await FlChannel()
-            ._channel
-            .invokeMethod<bool?>('sendBasicMessage', message);
-        return state ?? false;
-      } catch (e) {
-        debugPrint(e.toString());
-      }
-    }
-    return false;
-  }
-
   /// 销毁消息通道
   Future<bool> dispose() async {
-    if (_supportPlatform && _messageChannel != null) {
-      _messageChannel!.setMessageHandler(null);
-      _messageChannel = null;
-      final state =
-          await FlChannel()._channel.invokeMethod<bool>('stopBasicMessage');
-      return state ?? false;
-    }
+    _messageChannel?.setMessageHandler(null);
+    _messageChannel = null;
     return false;
   }
 }

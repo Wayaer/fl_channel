@@ -2,22 +2,29 @@ import FlutterMacOS
 import Foundation
 
 public class FlBasicMessage: NSObject {
-
     private var basicMessage: FlutterBasicMessageChannel?
-    private var messenger: FlutterBinaryMessenger?
 
-    static public let shared = FlBasicMessage()
+    private var binaryMessenger: FlutterBinaryMessenger
+    public var name: String
 
-
-    func setBinaryMessenger(_ messenger: FlutterBinaryMessenger) {
-        self.messenger = messenger
+    func getName() -> String {
+        return name
     }
 
-    public func initialize() {
-        basicMessage = FlutterBasicMessageChannel(name: "fl_channel/basic_message", binaryMessenger: messenger!)
+    init(_ name: String, _ binaryMessenger: FlutterBinaryMessenger) {
+        self.name = name
+        self.binaryMessenger = binaryMessenger
+        basicMessage = FlutterBasicMessageChannel(name: name, binaryMessenger: binaryMessenger)
+        super.init()
     }
 
-    public func addListener(handler: FlutterMessageHandler?) {
+    public func reset() {
+        if basicMessage == nil {
+            basicMessage = FlutterBasicMessageChannel(name: name, binaryMessenger: binaryMessenger)
+        }
+    }
+
+    public func setMessageHandler(handler: FlutterMessageHandler?) {
         basicMessage?.setMessageHandler(handler)
     }
 

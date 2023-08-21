@@ -5,32 +5,41 @@ import android.os.Looper
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 
-object FlEvent {
+class FlEvent(private val name: String, private val binaryMessenger: BinaryMessenger) {
 
     private var eventSink: EventChannel.EventSink? = null
-    private var eventChannel: EventChannel? = null
+    private var eventChannel: EventChannel?
     private val handler = Handler(Looper.getMainLooper())
-    private lateinit var binaryMessenger: BinaryMessenger
-
-    fun binding(binaryMessenger: BinaryMessenger) {
-        this.binaryMessenger = binaryMessenger
+    fun getName(): String {
+        return name
     }
 
-    fun initialize() {
-        eventChannel = EventChannel(binaryMessenger, "fl_channel/event")
-        eventChannel!!.setStreamHandler(object : EventChannel.StreamHandler {
-            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-                eventSink = events
-            }
+    private var streamHandler = object : EventChannel.StreamHandler {
+        override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+            eventSink = events
+        }
 
-            override fun onCancel(arguments: Any?) {
-                dispose()
-            }
-        })
+        override fun onCancel(arguments: Any?) {
+            dispose()
+        }
     }
 
-    fun send(args: Any?) {
-        eventSink.let {
+    init {
+        eventChannel = EventChannel(binaryMessenger, name)
+        eventChannel!!.setStreamHandler(streamHandler)
+    }
+
+
+    fun reset() {
+        if (eventChannel == null) {
+            eventChannel = EventChannel(binaryMessenger, name)
+            eventChannel!!.setStreamHandler(streamHandler)
+        }
+    }
+
+
+    fun send(args: Any) {
+        eventSink?.let {
             handler.post {
                 eventSink!!.success(args)
             }

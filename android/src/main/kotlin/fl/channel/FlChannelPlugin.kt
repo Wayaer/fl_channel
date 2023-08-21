@@ -1,7 +1,6 @@
 package fl.channel
 
 
-import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -11,53 +10,66 @@ import io.flutter.plugin.common.MethodChannel.Result
 /** FlChannelPlugin */
 class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var channel: MethodChannel
+    private lateinit var plugin: FlutterPlugin.FlutterPluginBinding
+
+    companion object {
+        var flEvent: FlEvent? = null
+        var flBasicMessage: FlBasicMessage? = null
+    }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        plugin = binding
         channel = MethodChannel(binding.binaryMessenger, "fl_channel")
         channel.setMethodCallHandler(this)
-        FlEvent.binding(binding.binaryMessenger)
-        FlBasicMessage.binding(binding.binaryMessenger)
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
-            "startEvent" -> {
-                FlEvent.initialize()
+            "initFlEvent" -> {
+                val name = call.argument<String>("name")!!
+                flEvent?.dispose()
+                flEvent = null
+                flEvent = FlEvent(name, plugin.binaryMessenger)
                 result.success(true)
             }
 
-            "sendEvent" -> {
-                FlEvent.send(call.arguments)
+            "sendFlEventFromNative" -> {
+                flEvent?.send(call.arguments)
+                result.success(flEvent != null)
+            }
+
+            "disposeFlEvent" -> {
+                flEvent?.dispose()
+                flEvent = null
                 result.success(true)
             }
 
-            "stopEvent" -> {
-                FlEvent.dispose()
+            "initFlBasicMessage" -> {
+                val name = call.argument<String>("name")!!
+                flBasicMessage?.dispose()
+                flBasicMessage = null
+                flBasicMessage = FlBasicMessage(name, plugin.binaryMessenger)
                 result.success(true)
             }
 
-            "startBasicMessage" -> {
-                FlBasicMessage.initialize()
-                result.success(true)
-            }
-
-            "basicMessageAddListener" -> {
-                FlBasicMessage.addListener { message, reply ->
-                    Log.d("BasicMessageListener==", "Received message：$message")
+            "addFlBasicMessageListenerForNative" -> {
+                flBasicMessage?.setMessageHandler { message, reply ->
+                    println("BasicMessageListener== Received message：$message")
                     reply.reply("(Received message：$message),Reply from Android")
                 }
                 result.success(true)
             }
 
-            "sendBasicMessage" -> {
-                FlBasicMessage.send(call.arguments) { reply ->
-                    FlBasicMessage.send("Received reply：($reply),from Android")
+            "sendFlBasicMessageFromNative" -> {
+                flBasicMessage?.send(call.arguments) { reply ->
+                    flBasicMessage?.send("Android Received reply：($reply),from Android")
                 }
                 result.success(true)
             }
 
-            "stopBasicMessage" -> {
-                FlBasicMessage.dispose()
+            "disposeFlBasicMessage" -> {
+                flBasicMessage?.dispose()
+                flBasicMessage = null
                 result.success(true)
             }
         }
@@ -65,6 +77,9 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
-        FlEvent.dispose()
+        flEvent?.dispose()
+        flEvent = null
+        flBasicMessage?.dispose()
+        flBasicMessage = null
     }
 }

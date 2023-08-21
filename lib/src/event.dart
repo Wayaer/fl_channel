@@ -5,11 +5,9 @@ typedef FlEventListenError = void Function(dynamic error);
 typedef FlEventListenDone = void Function();
 
 class FlEvent {
-  factory FlEvent() => _singleton ??= FlEvent._();
+  final String name;
 
-  FlEvent._();
-
-  static FlEvent? _singleton;
+  FlEvent(this.name);
 
   /// 订阅流
   StreamSubscription<dynamic>? _streamSubscription;
@@ -22,26 +20,23 @@ class FlEvent {
   /// 消息通道
   EventChannel? _eventChannel;
 
-  EventChannel? get eventChannel => _eventChannel;
+  bool get isInitialize => _eventChannel != null && _stream != null;
 
   bool get isPaused =>
       _streamSubscription != null && _streamSubscription!.isPaused;
 
   /// 初始化消息通道
-  Future<bool> initialize() async {
-    if (!_supportPlatform) return false;
-    if (_eventChannel != null) return true;
-    bool? state = await FlChannel()._channel.invokeMethod<bool?>('startEvent');
-    state ??= false;
-    if (state && _eventChannel == null) {
-      _eventChannel = const EventChannel('fl_channel/event');
+  Future<FlEvent?> initialize() async {
+    if (!_supportPlatform) return null;
+    if (_eventChannel == null) {
+      _eventChannel = EventChannel(name);
       _stream = _eventChannel?.receiveBroadcastStream(<dynamic, dynamic>{});
     }
-    return state && _eventChannel != null && _stream != null;
+    return this;
   }
 
   /// 添加消息流监听
-  bool addListener<T>(FlEventListenData onData,
+  bool listen<T>(FlEventListenData onData,
       {FlEventListenError? onError,
       FlEventListenDone? onDone,
       bool? cancelOnError}) {
@@ -54,20 +49,6 @@ class FlEvent {
       } catch (e) {
         debugPrint(e.toString());
       }
-    }
-    return false;
-  }
-
-  /// 调用原生方法 发送消息
-  Future<bool> send(dynamic arguments) async {
-    if (_supportPlatform &&
-        _eventChannel != null &&
-        _streamSubscription != null &&
-        !_streamSubscription!.isPaused) {
-      final state = await FlChannel()
-          ._channel
-          .invokeMethod<bool?>('sendEvent', arguments);
-      return state ?? false;
     }
     return false;
   }
@@ -95,13 +76,10 @@ class FlEvent {
   }
 
   /// 关闭并销毁消息通道
-  Future<bool> dispose() async {
-    if (!_supportPlatform) return false;
+  Future<void> dispose() async {
     await _streamSubscription?.cancel();
     _streamSubscription = null;
     _stream = null;
     _eventChannel = null;
-    final state = await FlChannel()._channel.invokeMethod<bool>('stopEvent');
-    return state ?? false;
   }
 }

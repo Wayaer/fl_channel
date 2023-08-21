@@ -2,20 +2,29 @@ import Flutter
 import Foundation
 
 public class FlEvent: NSObject, FlutterStreamHandler {
-    
     private var eventSink: FlutterEventSink?
     private var eventChannel: FlutterEventChannel?
-    private var messenger: FlutterBinaryMessenger?
 
-    static public let shared = FlEvent()
+    private var binaryMessenger: FlutterBinaryMessenger
+    public var name: String
 
-    func binding(_ messenger: FlutterBinaryMessenger) {
-        self.messenger = messenger
+    func getName() -> String {
+        return name
     }
 
-    public func initialize() {
-        eventChannel = FlutterEventChannel(name: "fl_channel/event", binaryMessenger: messenger!)
+    init(_ name: String, _ binaryMessenger: FlutterBinaryMessenger) {
+        self.name = name
+        self.binaryMessenger = binaryMessenger
+        eventChannel = FlutterEventChannel(name: name, binaryMessenger: binaryMessenger)
+        super.init()
         eventChannel!.setStreamHandler(self)
+    }
+
+    public func reset() {
+        if eventChannel == nil {
+            eventChannel = FlutterEventChannel(name: name, binaryMessenger: binaryMessenger)
+            eventChannel!.setStreamHandler(self)
+        }
     }
 
     public func send(_ args: Any?) {

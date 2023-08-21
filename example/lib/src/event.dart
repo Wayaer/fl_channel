@@ -11,7 +11,7 @@ class FlEventPage extends StatefulWidget {
 
 class _FlEventPageState extends State<FlEventPage> {
   String stateText = 'uninitialized';
-  FlEvent event = FlEvent();
+  FlEvent? flEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -19,19 +19,17 @@ class _FlEventPageState extends State<FlEventPage> {
       TextBox('FlEvent', stateText),
       Wrap(spacing: 8, direction: Axis.horizontal, children: <Widget>[
         ElevatedText(onPressed: initialize, text: 'initialize'),
-        ElevatedText(onPressed: addListener, text: 'addListener'),
-        ElevatedText(onPressed: send, text: 'send msg'),
+        ElevatedText(onPressed: listen, text: 'listen'),
+        ElevatedText(onPressed: sendFromNative, text: 'send from native'),
         ElevatedText(
             onPressed: () {
-              final bool state = event.pause();
-              stateText = 'pause $state';
+              stateText = 'pause ${flEvent?.pause()}';
               setState(() {});
             },
             text: 'pause'),
         ElevatedText(
             onPressed: () {
-              final bool state = event.resume();
-              stateText = 'resume $state';
+              stateText = 'resume ${flEvent?.resume()}';
               setState(() {});
             },
             text: 'resume'),
@@ -40,31 +38,29 @@ class _FlEventPageState extends State<FlEventPage> {
     ]);
   }
 
-  void addListener() {
-    final bool state = event.addListener((dynamic data) {
-      addText(data.toString());
-    });
-    stateText = 'add listener $state';
+  Future<void> initialize() async {
+    flEvent = await FlChannel().initFlEvent();
+    stateText = 'initialize ${flEvent != null} ';
     setState(() {});
   }
 
-  Future<void> initialize() async {
-    final bool eventState = await event.initialize();
-    if (eventState) {
-      stateText = 'initialize successful';
-      setState(() {});
-    }
+  void listen() {
+    final state = flEvent?.listen((dynamic data) {
+      addText(data.toString());
+    });
+    stateText = 'add listener ${state ?? false}';
+    setState(() {});
   }
 
-  Future<void> send() async {
-    final bool status = await event.send('Flutter to Native');
+  Future<void> sendFromNative() async {
+    final status = await FlChannel().sendFlEventFromNative('Flutter to Native');
     stateText = status ? 'successful' : 'failed';
     setState(() {});
   }
 
   Future<void> _dispose() async {
-    final bool status = await event.dispose();
-    stateText = status ? 'successful' : 'failed';
+    FlChannel().disposeFlEvent();
+    stateText = 'successful';
     texts.value = [];
     setState(() {});
   }
