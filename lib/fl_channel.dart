@@ -44,7 +44,6 @@ class FlChannel {
     return state ?? false;
   }
 
-  /// 调用原生方法 发送消息
   Future<bool> sendFlEventFromNative(dynamic args) async {
     if (_supportPlatform && _flEvent != null && !_flEvent!.isPaused) {
       final state =
@@ -67,20 +66,39 @@ class FlChannel {
     return _flBasicMessage;
   }
 
-  Future<bool> addFlBasicMessageListenerForNative() async {
+  Future<bool> setFlBasicMessageHandler() async {
     if (_supportPlatform && _flBasicMessage != null) {
-      final state = await _channel
-          .invokeMethod<bool?>('addFlBasicMessageListenerForNative');
+      final state =
+          await _channel.invokeMethod<bool?>('setFlBasicMessageHandler');
       return state ?? false;
     }
     return false;
   }
 
-  /// 向Native发送消息
-  Future<bool> sendFlBasicMessageFromNative(dynamic message) async {
+  Future<bool> sendFlBasicMessageFromNative(dynamic arguments) async {
     if (_supportPlatform && _flBasicMessage != null) {
       final state = await _channel.invokeMethod<bool?>(
-          'sendFlBasicMessageFromNative', message);
+          'sendFlBasicMessageFromNative', arguments);
+      return state ?? false;
+    }
+    return false;
+  }
+
+  Future<bool> setFlBasicMethodCallHandler() async {
+    if (_supportPlatform && _flBasicMessage != null) {
+      final state =
+          await _channel.invokeMethod<bool?>('setFlBasicMethodCallHandler');
+      return state ?? false;
+    }
+    return false;
+  }
+
+  Future<bool> sendFlBasicMethodCallFromNative(
+      String name, dynamic arguments) async {
+    if (_supportPlatform && _flBasicMessage != null) {
+      final state = await _channel.invokeMethod<bool?>(
+          'sendFlBasicMethodCallFromNative',
+          {'name': name, 'arguments': arguments});
       return state ?? false;
     }
     return false;

@@ -21,6 +21,7 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
         plugin = binding
         channel = MethodChannel(binding.binaryMessenger, "fl_channel")
         channel.setMethodCallHandler(this)
+//        channel.invokeMethod()
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -34,8 +35,8 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
             }
 
             "sendFlEventFromNative" -> {
-                flEvent?.send(call.arguments)
-                result.success(flEvent != null)
+                val value = flEvent?.send(call.arguments)
+                result.success(value)
             }
 
             "disposeFlEvent" -> {
@@ -52,19 +53,48 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
                 result.success(true)
             }
 
-            "addFlBasicMessageListenerForNative" -> {
-                flBasicMessage?.setMessageHandler { message, reply ->
-                    println("BasicMessageListener== Received message：$message")
+            "setFlBasicMessageHandler" -> {
+                val value = flBasicMessage?.setMessageHandler { message, reply ->
+                    println("Android Received FlBasicMessage：$message")
                     reply.reply("(Received message：$message),Reply from Android")
                 }
-                result.success(true)
+                result.success(value)
+            }
+
+            "setFlBasicMethodCallHandler" -> {
+                val value = flBasicMessage?.setMethodCallHandler { call, result ->
+                    println("Android Received FlBasicMethodCall：${call.method} = ${call.arguments}")
+                    result.success("(Received methodCall：${call.arguments}),Reply from Android")
+                }
+                result.success(value)
+            }
+
+            "sendFlBasicMethodCallFromNative" -> {
+                val name = call.argument<String>("name")!!
+                val arguments = call.argument<Any?>("arguments")
+                val value = flBasicMessage?.invokeMethod(name, arguments, object : Result {
+                    override fun success(result: Any?) {
+                        println("(Native invokeMethod result: $result ")
+                    }
+
+                    override fun error(
+                        errorCode: String, errorMessage: String?, errorDetails: Any?
+                    ) {
+                        println("(Native invokeMethod result error : $errorCode $errorMessage $errorDetails")
+                    }
+
+                    override fun notImplemented() {
+                        println("(Native invokeMethod result notImplemented")
+                    }
+                })
+                result.success(value)
             }
 
             "sendFlBasicMessageFromNative" -> {
-                flBasicMessage?.send(call.arguments) { reply ->
+                val value = flBasicMessage?.send(call.arguments) { reply ->
                     flBasicMessage?.send("Android Received reply：($reply),from Android")
                 }
-                result.success(true)
+                result.success(value)
             }
 
             "disposeFlBasicMessage" -> {
@@ -82,4 +112,6 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
         flBasicMessage?.dispose()
         flBasicMessage = null
     }
+
+
 }

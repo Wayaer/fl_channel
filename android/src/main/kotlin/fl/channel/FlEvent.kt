@@ -38,12 +38,13 @@ class FlEvent(private val name: String, private val binaryMessenger: BinaryMesse
     }
 
 
-    fun send(args: Any) {
+    fun send(args: Any): Boolean {
         eventSink?.let {
             handler.post {
                 eventSink!!.success(args)
             }
         }
+        return eventSink != null && eventChannel != null
     }
 
     fun dispose() {

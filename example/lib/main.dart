@@ -1,5 +1,7 @@
 import 'package:example/src/basic_message.dart';
+import 'package:example/src/basic_message_meth_call.dart';
 import 'package:example/src/event.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -8,31 +10,39 @@ void main() {
       darkTheme: ThemeData.dark(useMaterial3: true),
       debugShowCheckedModeBanner: false,
       title: 'FlChannel',
-      home: Scaffold(appBar: AppBarText('FlChannel'), body: const App())));
+      home: const App()));
 }
-
-final ValueNotifier<List<String>> texts =
-    ValueNotifier<List<String>>(<String>[]);
 
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      const SizedBox(width: double.infinity, child: Card(child: FlEventPage())),
-      const SizedBox(
-          width: double.infinity, child: Card(child: FlBasicMessagePage())),
-      Expanded(
-          child: ValueListenableBuilder<List<String>>(
-              valueListenable: texts,
-              builder: (_, List<String> value, __) {
-                return ListView.builder(
-                    itemCount: value.length,
-                    itemBuilder: (_, int index) =>
-                        TextBox(index, value[index]));
-              }))
-    ]);
+    return Scaffold(
+        appBar: AppBarText('FlChannel'),
+        body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const SizedBox(width: double.infinity),
+          ElevatedText(
+              text: 'FlEvent',
+              onPressed: () {
+                showCupertinoModalPopup(
+                    context: context, builder: (_) => const FlEventPage());
+              }),
+          ElevatedText(
+              text: 'FlBasicMessage',
+              onPressed: () {
+                showCupertinoModalPopup(
+                    context: context,
+                    builder: (_) => const FlBasicMessagePage());
+              }),
+          ElevatedText(
+              text: 'FlBasicMessage MethodCall',
+              onPressed: () {
+                showCupertinoModalPopup(
+                    context: context,
+                    builder: (_) => const FlBasicMessageMethodCallPage());
+              }),
+        ]));
   }
 }
 

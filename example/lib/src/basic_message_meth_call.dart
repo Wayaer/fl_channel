@@ -1,15 +1,17 @@
 import 'package:example/main.dart';
 import 'package:fl_channel/fl_channel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class FlBasicMessagePage extends StatefulWidget {
-  const FlBasicMessagePage({super.key});
+class FlBasicMessageMethodCallPage extends StatefulWidget {
+  const FlBasicMessageMethodCallPage({super.key});
 
   @override
-  State<FlBasicMessagePage> createState() => _FlBasicMessagePageState();
+  State<FlBasicMessageMethodCallPage> createState() =>
+      _FlBasicMessagePageState();
 }
 
-class _FlBasicMessagePageState extends State<FlBasicMessagePage> {
+class _FlBasicMessagePageState extends State<FlBasicMessageMethodCallPage> {
   final ValueNotifier<List<String>> texts =
       ValueNotifier<List<String>>(<String>[]);
   String stateText = 'uninitialized';
@@ -28,10 +30,12 @@ class _FlBasicMessagePageState extends State<FlBasicMessagePage> {
               children: [
                 ElevatedText(onPressed: initialize, text: 'initialize'),
                 ElevatedText(
-                    onPressed: setMessageHandler, text: 'setMessageHandler'),
-                ElevatedText(onPressed: sendToNative, text: 'send to native '),
+                    onPressed: setMethodCallHandler,
+                    text: 'setMethodCallHandler'),
+                ElevatedText(onPressed: invokeMethod, text: 'invoke method '),
                 ElevatedText(
-                    onPressed: sendFormNative, text: 'send from native'),
+                    onPressed: invokeMethodFormNative,
+                    text: 'invoke method from native'),
                 ElevatedText(onPressed: _dispose, text: 'dispose'),
               ]),
           Expanded(
@@ -46,13 +50,13 @@ class _FlBasicMessagePageState extends State<FlBasicMessagePage> {
         ]));
   }
 
-  void setMessageHandler() {
+  void setMethodCallHandler() {
     /// add native listener
-    FlChannel().setFlBasicMessageHandler();
+    FlChannel().setFlBasicMethodCallHandler();
 
     /// add dart listener
-    final state = flBasicMessage?.setMessageHandler((dynamic data) async {
-      addText(data.toString());
+    final state = flBasicMessage?.setMethodCallHandler((MethodCall call) async {
+      addText('Native call: ${call.method} = ${call.arguments}');
       return 'Reply from Dart';
     });
     stateText = 'add listener ${state ?? false}';
@@ -65,17 +69,18 @@ class _FlBasicMessagePageState extends State<FlBasicMessagePage> {
     setState(() {});
   }
 
-  Future<void> sendFormNative() async {
-    final status =
-        await FlChannel().sendFlBasicMessageFromNative('Native to Flutter');
+  Future<void> invokeMethodFormNative() async {
+    final status = await FlChannel()
+        .sendFlBasicMethodCallFromNative('callDart', 'Call dart from Native');
     stateText = status ? 'successful' : 'failed';
     setState(() {});
   }
 
-  Future<void> sendToNative() async {
-    final result = await flBasicMessage?.send('Flutter to Native');
+  Future<void> invokeMethod() async {
+    final result = await flBasicMessage?.invokeMethod(
+        'callNative', 'Call native from dart');
     stateText = result != null ? 'successful' : 'failed';
-    if (result != null) addText('Sent successfully and reply: $result');
+    if (result != null) addText('invokeMethod result: $result');
     setState(() {});
   }
 

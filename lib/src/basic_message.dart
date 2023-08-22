@@ -22,7 +22,7 @@ class FlBasicMessage {
   }
 
   /// 添加消息监听
-  bool setMessageHandler(FlBasicMessageHandler handler) {
+  bool setMessageHandler(FlBasicMessageHandler? handler) {
     if (_supportPlatform && isInitialize) {
       _messageChannel!.setMessageHandler(handler);
     }
@@ -41,5 +41,34 @@ class FlBasicMessage {
   Future<void> dispose() async {
     _messageChannel?.setMessageHandler(null);
     _messageChannel = null;
+  }
+
+  Future<T?> invokeMethod<T>(String method, [dynamic arguments]) async {
+    if (_supportPlatform && isInitialize) {
+      final result = await _messageChannel!.send({method: arguments});
+      return result as T;
+    }
+    return null;
+  }
+
+  bool setMethodCallHandler(
+      Future<dynamic> Function(MethodCall call)? handler) {
+    if (_supportPlatform && isInitialize) {
+      FlBasicMessageHandler? flBasicMessageHandler;
+      if (handler != null) {
+        flBasicMessageHandler = (message) async {
+          if (message is Map) {
+            dynamic result;
+            message.forEach((key, value) async {
+              result = await handler(MethodCall(key, value));
+            });
+            return result;
+          }
+          return null;
+        };
+      }
+      setMessageHandler(flBasicMessageHandler);
+    }
+    return isInitialize;
   }
 }
