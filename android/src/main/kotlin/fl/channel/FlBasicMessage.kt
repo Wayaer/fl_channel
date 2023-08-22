@@ -47,8 +47,7 @@ class FlBasicMessage(private val name: String, private val binaryMessenger: Bina
         basicMessage?.setMessageHandler { message, reply ->
             if (message !is MutableMap<*, *>) return@setMessageHandler
             message.keys.forEach {
-                handler?.onMethodCall(
-                    MethodCall(it.toString(), message[it]),
+                handler?.onMethodCall(MethodCall(it.toString(), message[it]),
                     object : MethodChannel.Result {
                         override fun success(result: Any?) {
                             reply.reply(mapOf("success" to result))
