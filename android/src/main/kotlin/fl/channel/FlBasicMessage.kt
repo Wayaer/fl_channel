@@ -9,7 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.StandardMessageCodec
 
 class FlBasicMessage(private val name: String, private val binaryMessenger: BinaryMessenger) {
-    private var basicMessage: BasicMessageChannel<Any>?
+    private var basicMessage: BasicMessageChannel<Any>? = null
     private val handler = Handler(Looper.getMainLooper())
 
     fun getName(): String {
@@ -47,7 +47,8 @@ class FlBasicMessage(private val name: String, private val binaryMessenger: Bina
         basicMessage?.setMessageHandler { message, reply ->
             if (message !is MutableMap<*, *>) return@setMessageHandler
             message.keys.forEach {
-                handler?.onMethodCall(MethodCall(it.toString(), message[it]),
+                handler?.onMethodCall(
+                    MethodCall(it.toString(), message[it]),
                     object : MethodChannel.Result {
                         override fun success(result: Any?) {
                             reply.reply(mapOf("success" to result))

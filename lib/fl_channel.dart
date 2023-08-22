@@ -39,13 +39,14 @@ class FlChannel {
 
   Future<bool> disposeFlEvent() async {
     _flEvent?.dispose();
+    _flEvent = null;
     final state = await _channel.invokeMethod<bool>('disposeFlEvent');
     return state ?? false;
   }
 
   /// 调用原生方法 发送消息
   Future<bool> sendFlEventFromNative(dynamic args) async {
-    if (_supportPlatform && _flEvent != null) {
+    if (_supportPlatform && _flEvent != null && !_flEvent!.isPaused) {
       final state =
           await _channel.invokeMethod<bool?>('sendFlEventFromNative', args);
       return state ?? false;
@@ -87,6 +88,7 @@ class FlChannel {
 
   Future<bool> disposeFlBasicMessage() async {
     _flBasicMessage?.dispose();
+    _flBasicMessage = null;
     final state = await _channel.invokeMethod<bool>('disposeFlBasicMessage');
     return state ?? false;
   }
