@@ -29,7 +29,7 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
                 val name = call.argument<String>("name")!!
                 flEvent?.dispose()
                 flEvent = null
-                flEvent = FlEvent(name, plugin.binaryMessenger)
+                flEvent = FlEvent(plugin.binaryMessenger, name)
                 result.success(true)
             }
 
@@ -48,7 +48,7 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
                 val name = call.argument<String>("name")!!
                 flBasicMessage?.dispose()
                 flBasicMessage = null
-                flBasicMessage = FlBasicMessage(name, plugin.binaryMessenger)
+                flBasicMessage = FlBasicMessage(plugin.binaryMessenger, name)
                 result.success(true)
             }
 

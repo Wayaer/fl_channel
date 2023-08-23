@@ -45,8 +45,7 @@ class FlBasicMessage {
 
   Future<T?> invokeMethod<T>(String method, [dynamic arguments]) async {
     if (_supportPlatform && isInitialize) {
-      final result = await _messageChannel!.send({method: arguments});
-      return result as T;
+      return _messageChannel!.invokeMethod(method, arguments);
     }
     return null;
   }
@@ -54,23 +53,41 @@ class FlBasicMessage {
   bool setMethodCallHandler(
       Future<dynamic> Function(MethodCall call)? handler) {
     if (_supportPlatform && isInitialize) {
-      FlBasicMessageHandler? flBasicMessageHandler;
-      if (handler != null) {
-        flBasicMessageHandler = (message) async {
-          if (message is Map) {
-            dynamic result;
-            await Future.forEach(message.entries, (entry) async {
-              String key = entry.key;
-              String value = entry.value;
-              result = await handler(MethodCall(key, value));
-            });
-            return result;
-          }
-          return null;
-        };
-      }
-      setMessageHandler(flBasicMessageHandler);
+      _messageChannel?.setMethodCallHandler(handler);
     }
     return isInitialize;
+  }
+}
+
+extension ExtensionBasicMessageChannel on BasicMessageChannel {
+  Future<T?> invokeMethod<T>(String method, [dynamic arguments]) async {
+    final result = await send({method: arguments});
+    if (result is Map) {
+      final state = result['state'] as int? ?? 0;
+      if (state == 0) {
+        return result['result'] as T;
+      } else {
+        return Future.error(FlutterError(result['result'].toString()));
+      }
+    }
+    return null;
+  }
+
+  void setMethodCallHandler(
+      Future<dynamic> Function(MethodCall call)? handler) {
+    FlBasicMessageHandler? flBasicMessageHandler;
+    if (handler != null) {
+      flBasicMessageHandler = (message) async {
+        if (message is Map) {
+          dynamic result;
+          await Future.forEach(message.entries, (entry) async {
+            result = await handler(MethodCall(entry.key, entry.value));
+          });
+          return result;
+        }
+        return null;
+      };
+    }
+    setMessageHandler(flBasicMessageHandler);
   }
 }

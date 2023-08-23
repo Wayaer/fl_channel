@@ -9,7 +9,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.StandardMessageCodec
 
-class FlBasicMessage(private val name: String, private val binaryMessenger: BinaryMessenger) {
+class FlBasicMessage(private val binaryMessenger: BinaryMessenger, private val name: String) {
     private var basicMessage: BasicMessageChannel<Any>? = null
     private val handler = Handler(Looper.getMainLooper())
 
@@ -35,7 +35,7 @@ class FlBasicMessage(private val name: String, private val binaryMessenger: Bina
     fun send(args: Any, callback: BasicMessageChannel.Reply<Any>? = null): Boolean {
         if (basicMessage != null) {
             handler.post {
-                basicMessage!!.send(args, callback)
+                basicMessage?.send(args, callback)
             }
         }
         return basicMessage != null
@@ -50,10 +50,9 @@ class FlBasicMessage(private val name: String, private val binaryMessenger: Bina
     fun invokeMethod(
         method: String, arguments: Any? = null, result: MethodChannel.Result? = null
     ): Boolean {
-        send(
+        return send(
             mapOf(method to arguments), if (result == null) null else IncomingResultHandler(result)
         )
-        return basicMessage != null
     }
 
     private class IncomingResultHandler<T>(private val result: MethodChannel.Result) :
@@ -104,6 +103,4 @@ class FlBasicMessage(private val name: String, private val binaryMessenger: Bina
         }
         return basicMessage != null
     }
-
 }
-

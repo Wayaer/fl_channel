@@ -5,7 +5,7 @@ import android.os.Looper
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 
-class FlEvent(private val name: String, private val binaryMessenger: BinaryMessenger) {
+class FlEvent(private val binaryMessenger: BinaryMessenger, private val name: String) {
 
     private var eventSink: EventChannel.EventSink? = null
     private var eventChannel: EventChannel?
@@ -39,9 +39,9 @@ class FlEvent(private val name: String, private val binaryMessenger: BinaryMesse
 
 
     fun send(args: Any): Boolean {
-        eventSink?.let {
+        if (eventSink != null) {
             handler.post {
-                eventSink!!.success(args)
+                eventSink?.success(args)
             }
         }
         return eventSink != null && eventChannel != null

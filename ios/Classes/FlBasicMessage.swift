@@ -58,7 +58,13 @@ public class FlBasicMessage: NSObject {
                 let map = message as! [String: Any]
                 for (key, value) in map {
                     handler?(FlutterMethodCall(methodName: key, arguments: value), { result in
-                        reply(result)
+                        var state = 0
+                        if result as? NSObject == FlutterMethodNotImplemented {
+                            state = 2
+                        } else if result is FlutterError {
+                            state = 1
+                        }
+                        reply(["state": state, "result": result])
                     })
                 }
             }

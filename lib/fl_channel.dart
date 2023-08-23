@@ -22,13 +22,18 @@ class FlChannel {
 
   FlEvent? _flEvent;
 
+  FlEvent? get flEvent => _flEvent;
+
+
   FlBasicMessage? _flBasicMessage;
+
+  FlBasicMessage? get flBasicMessage => _flBasicMessage;
 
   Future<FlEvent?> initFlEvent() async {
     if (_supportPlatform && _flEvent == null) {
       const name = 'fl_channel/event';
       final state =
-          await _channel.invokeMethod<bool?>('initFlEvent', {'name': name});
+      await _channel.invokeMethod<bool?>('initFlEvent', {'name': name});
       if (state == true) {
         _flEvent = FlEvent(name);
         return await _flEvent!.initialize();
@@ -47,7 +52,7 @@ class FlChannel {
   Future<bool> sendFlEventFromNative(dynamic args) async {
     if (_supportPlatform && _flEvent != null && !_flEvent!.isPaused) {
       final state =
-          await _channel.invokeMethod<bool?>('sendFlEventFromNative', args);
+      await _channel.invokeMethod<bool?>('sendFlEventFromNative', args);
       return state ?? false;
     }
     return false;
@@ -69,7 +74,7 @@ class FlChannel {
   Future<bool> setFlBasicMessageHandler() async {
     if (_supportPlatform && _flBasicMessage != null) {
       final state =
-          await _channel.invokeMethod<bool?>('setFlBasicMessageHandler');
+      await _channel.invokeMethod<bool?>('setFlBasicMessageHandler');
       return state ?? false;
     }
     return false;
@@ -87,14 +92,14 @@ class FlChannel {
   Future<bool> setFlBasicMethodCallHandler() async {
     if (_supportPlatform && _flBasicMessage != null) {
       final state =
-          await _channel.invokeMethod<bool?>('setFlBasicMethodCallHandler');
+      await _channel.invokeMethod<bool?>('setFlBasicMethodCallHandler');
       return state ?? false;
     }
     return false;
   }
 
-  Future<bool> sendFlBasicMethodCallFromNative(
-      String name, dynamic arguments) async {
+  Future<bool> sendFlBasicMethodCallFromNative(String name,
+      dynamic arguments) async {
     if (_supportPlatform && _flBasicMessage != null) {
       final state = await _channel.invokeMethod<bool?>(
           'sendFlBasicMethodCallFromNative',
