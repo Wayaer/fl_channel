@@ -48,26 +48,21 @@ class FlBasicMessage(private val name: String, private val binaryMessenger: Bina
 
 
     fun invokeMethod(
-        method: String, arguments: Any? = null, callback: MethodChannel.Result? = null
+        method: String, arguments: Any? = null, result: MethodChannel.Result? = null
     ): Boolean {
         send(
-            mapOf(method to arguments),
-            if (callback == null) null else IncomingResultHandler(callback)
+            mapOf(method to arguments), if (result == null) null else IncomingResultHandler(result)
         )
         return basicMessage != null
     }
 
-    private class IncomingResultHandler<T>(private val callback: MethodChannel.Result) :
+    private class IncomingResultHandler<T>(private val result: MethodChannel.Result) :
         BasicMessageChannel.Reply<T> {
         override fun reply(reply: T?) {
-            if (reply == null) {
-                callback.notImplemented()
-            } else {
-                try {
-                    callback.success(reply)
-                } catch (e: FlutterException) {
-                    callback.error(e.code, e.message, e.details)
-                }
+            try {
+                result.success(reply)
+            } catch (e: FlutterException) {
+                result.error(e.code, e.message, e.details)
             }
         }
     }
@@ -76,10 +71,15 @@ class FlBasicMessage(private val name: String, private val binaryMessenger: Bina
         basicMessage?.setMessageHandler { message, reply ->
             if (message !is MutableMap<*, *>) return@setMessageHandler
             message.keys.forEach {
-                handler?.onMethodCall(MethodCall(it.toString(), message[it]),
+                handler?.onMethodCall(
+                    MethodCall(it.toString(), message[it]),
                     object : MethodChannel.Result {
                         override fun success(result: Any?) {
-                            reply.reply(mapOf("success" to result))
+                            reply.reply(
+                                mapOf(
+                                    "state" to 0, "result" to result
+                                )
+                            )
                         }
 
                         override fun error(
@@ -87,7 +87,7 @@ class FlBasicMessage(private val name: String, private val binaryMessenger: Bina
                         ) {
                             reply.reply(
                                 mapOf(
-                                    "error" to mapOf(
+                                    "state" to 1, "result" to mapOf(
                                         "errorCode" to errorCode,
                                         "errorMessage" to errorMessage,
                                         "errorDetails" to errorDetails,
@@ -97,9 +97,7 @@ class FlBasicMessage(private val name: String, private val binaryMessenger: Bina
                         }
 
                         override fun notImplemented() {
-                            reply.reply(
-                                mapOf("notImplemented" to null)
-                            )
+                            reply.reply(mapOf("state" to 2))
                         }
                     })
             }

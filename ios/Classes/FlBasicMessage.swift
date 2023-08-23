@@ -24,20 +24,44 @@ public class FlBasicMessage: NSObject {
         }
     }
 
-    public func setMessageHandler(handler: FlutterMessageHandler?) {
+    public func setMessageHandler(handler: FlutterMessageHandler?) -> Bool {
         basicMessage?.setMessageHandler(handler)
+        return basicMessage != nil
     }
 
-    public func send(_ args: Any?, reply: FlutterReply? = nil) {
+    public func send(_ args: Any?, reply: FlutterReply? = nil) -> Bool {
         if basicMessage != nil {
             DispatchQueue.main.async {
                 self.basicMessage!.sendMessage(args, reply: reply)
             }
         }
+        return basicMessage != nil
     }
 
     public func dispose() {
         basicMessage?.setMessageHandler(nil)
         basicMessage = nil
+    }
+
+    public func invokeMethod(
+        _ method: String, arguments: Any? = nil, result: FlutterResult? = nil
+    ) -> Bool {
+        send([method: arguments], reply: {
+            reply in
+            result?(reply)
+        })
+    }
+
+    public func setMethodCallHandler(handler: FlutterMethodCallHandler? = nil) -> Bool {
+        setMessageHandler { message, reply in
+            if message is [String: Any] {
+                let map = message as! [String: Any]
+                for (key, value) in map {
+                    handler?(FlutterMethodCall(methodName: key, arguments: value), { result in
+                        reply(result)
+                    })
+                }
+            }
+        }
     }
 }

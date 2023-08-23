@@ -59,7 +59,9 @@ class FlBasicMessage {
         flBasicMessageHandler = (message) async {
           if (message is Map) {
             dynamic result;
-            message.forEach((key, value) async {
+            await Future.forEach(message.entries, (entry) async {
+              String key = entry.key;
+              String value = entry.value;
               result = await handler(MethodCall(key, value));
             });
             return result;

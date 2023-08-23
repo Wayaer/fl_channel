@@ -80,7 +80,7 @@ class _FlBasicMessagePageState extends State<FlBasicMessageMethodCallPage> {
     final result = await flBasicMessage?.invokeMethod(
         'callNative', 'Call native from dart');
     stateText = result != null ? 'successful' : 'failed';
-    if (result != null) addText('invokeMethod result: $result');
+    if (result != null) addText('Dart invokeMethod result: $result');
     setState(() {});
   }
 

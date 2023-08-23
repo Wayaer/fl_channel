@@ -28,8 +28,8 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
             flEvent = FlEvent(name, messenger)
             result(true)
         case "sendFlEventFromNative":
-            flEvent?.send(call.arguments)
-            result(flEvent != nil)
+            let value = flEvent?.send(call.arguments)
+            result(value ?? false)
         case "disposeFlEvent":
             flEvent?.dispose()
             flEvent = nil
@@ -40,20 +40,35 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
             flBasicMessage = nil
             flBasicMessage = FlBasicMessage(name, messenger)
             result(true)
-        case "addFlBasicMessageListenerForNative":
-            flBasicMessage?.setMessageHandler {
+        case "setFlBasicMessageHandler":
+            let value = flBasicMessage?.setMessageHandler {
                 message, reply in
                 print("BasicMessageListener==", "Received message：\(String(describing: message))")
-                reply("(Received message：\(String(describing: message))),Reply from iOS")
+                reply("(Received message：\(String(describing: message))),Reply from Native")
             }
-            result(true)
-
+            result(value ?? false)
         case "sendFlBasicMessageFromNative":
-            flBasicMessage?.send(call.arguments, reply: {
+            let value = flBasicMessage?.send(call.arguments, reply: {
                 reply in
-                self.flBasicMessage?.send("iOS Received reply：(\(String(describing: reply))),from iOS")
+                _ = self.flBasicMessage?.send("Native Received reply：(\(String(describing: reply))),from Native")
             })
-            result(true)
+            result(value ?? false)
+
+        case "setFlBasicMethodCallHandler":
+            let value = flBasicMessage?.setMethodCallHandler {
+                call, result in
+                print("Native Received FlBasicMethodCall：\(call.method) = \(String(describing: call.arguments))")
+                result("(Received methodCall：\(String(describing: call.arguments))),Reply from Native")
+            }
+            result(value)
+        case "sendFlBasicMethodCallFromNative":
+            let args = call.arguments as! [String: Any]
+            let name = args["name"] as! String
+            let arguments = args["arguments"] as Any
+            let value = flBasicMessage?.invokeMethod(name, arguments: arguments, result: { result in
+                print("Native invokeMethod result: \(String(describing: result))")
+            })
+            result(value)
         case "disposeFlBasicMessage":
             flBasicMessage?.dispose()
             flBasicMessage = nil
