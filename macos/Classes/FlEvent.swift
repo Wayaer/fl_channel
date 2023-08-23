@@ -27,10 +27,11 @@ public class FlEvent: NSObject, FlutterStreamHandler {
         }
     }
 
-    public func send(_ args: Any?) {
+    public func send(_ args: Any?) -> Bool {
         DispatchQueue.main.async {
             self.eventSink?(args)
         }
+        return eventSink != nil && eventChannel != nil
     }
 
     public func dispose() {
