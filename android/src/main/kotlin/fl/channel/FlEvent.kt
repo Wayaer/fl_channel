@@ -6,9 +6,8 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 
 class FlEvent(
-    messenger: BinaryMessenger, private val name: String
+    messenger: BinaryMessenger, name: String
 ) {
-
     private var eventSink: EventChannel.EventSink? = null
     private var eventChannel: EventChannel = EventChannel(messenger, name)
     private val handler = Handler(Looper.getMainLooper())
@@ -20,12 +19,10 @@ class FlEvent(
         override fun onCancel(arguments: Any?) {
             eventSink?.endOfStream()
             eventSink = null
+            eventChannel.setStreamHandler(null)
         }
     }
 
-    fun getName(): String {
-        return name
-    }
 
     init {
         eventChannel.setStreamHandler(streamHandler)

@@ -25,8 +25,7 @@ class FlEvent extends EventChannel {
       {FlEventListenError? onError,
       FlEventListenDone? onDone,
       bool? cancelOnError}) {
-    if (_supportPlatform && _stream != null) {
-      if (_streamSubscription != null) return false;
+    if (_supportPlatform && _stream != null && _streamSubscription == null) {
       try {
         _streamSubscription = _stream!.listen(onData,
             onError: onError, onDone: onDone, cancelOnError: cancelOnError);
@@ -61,7 +60,7 @@ class FlEvent extends EventChannel {
   }
 
   /// 关闭并销毁消息通道
-  Future<void> cancel() async {
+  Future<void> dispose() async {
     await _streamSubscription?.cancel();
     _streamSubscription = null;
     _stream = null;

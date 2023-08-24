@@ -33,6 +33,7 @@ class FlChannel {
   }
 
   Future<bool> disposeFlEvent() async {
+    _flEvent?.dispose();
     _flEvent = null;
     final state = await _channel.invokeMethod<bool>('disposeFlEvent');
     return state ?? false;
