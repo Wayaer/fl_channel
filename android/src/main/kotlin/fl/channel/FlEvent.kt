@@ -11,20 +11,19 @@ class FlEvent(
     private var eventSink: EventChannel.EventSink? = null
     private var eventChannel: EventChannel = EventChannel(messenger, name)
     private val handler = Handler(Looper.getMainLooper())
-    private var streamHandler = object : EventChannel.StreamHandler {
-        override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-            eventSink = events
-        }
-
-        override fun onCancel(arguments: Any?) {
-            eventSink?.endOfStream()
-            eventSink = null
-            eventChannel.setStreamHandler(null)
-        }
-    }
 
     init {
-        eventChannel.setStreamHandler(streamHandler)
+        eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                eventSink = events
+            }
+
+            override fun onCancel(arguments: Any?) {
+                eventSink?.endOfStream()
+                eventSink = null
+                eventChannel.setStreamHandler(null)
+            }
+        })
     }
 
     fun send(args: Any): Boolean {
