@@ -6,7 +6,7 @@ public class FlEvent: NSObject, FlutterStreamHandler {
     private var eventChannel: FlutterEventChannel?
     private var binaryMessenger: FlutterBinaryMessenger
 
-    init(_ name: String, _ binaryMessenger: FlutterBinaryMessenger) {
+    public init(_ name: String, _ binaryMessenger: FlutterBinaryMessenger) {
         self.binaryMessenger = binaryMessenger
         eventChannel = FlutterEventChannel(name: name, binaryMessenger: binaryMessenger)
         super.init()

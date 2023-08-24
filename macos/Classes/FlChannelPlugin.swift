@@ -22,7 +22,6 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "initFlEvent":
             let name = (call.arguments as! [String: Any])["name"] as! String
-            flEvent?.dispose()
             flEvent = nil
             flEvent = FlEvent(name, messenger)
             result(true)
@@ -30,7 +29,6 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
             let value = flEvent?.send(call.arguments)
             result(value ?? false)
         case "disposeFlEvent":
-            flEvent?.dispose()
             flEvent = nil
             result(true)
 
@@ -40,7 +38,6 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
     }
 
     public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-        flEvent?.dispose()
         flEvent = nil
         channel.setMethodCallHandler(nil)
     }
