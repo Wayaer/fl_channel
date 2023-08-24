@@ -23,11 +23,9 @@ class FlEvent(
         }
     }
 
-
     init {
         eventChannel.setStreamHandler(streamHandler)
     }
-
 
     fun send(args: Any): Boolean {
         if (eventSink != null) {
