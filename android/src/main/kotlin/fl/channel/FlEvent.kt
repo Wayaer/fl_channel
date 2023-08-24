@@ -5,36 +5,30 @@ import android.os.Looper
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 
-class FlEvent(private val binaryMessenger: BinaryMessenger, private val name: String) {
+class FlEvent(
+    messenger: BinaryMessenger, private val name: String
+) {
 
     private var eventSink: EventChannel.EventSink? = null
-    private var eventChannel: EventChannel?
+    private var eventChannel: EventChannel = EventChannel(messenger, name)
     private val handler = Handler(Looper.getMainLooper())
-    fun getName(): String {
-        return name
-    }
-
     private var streamHandler = object : EventChannel.StreamHandler {
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
             eventSink = events
         }
 
         override fun onCancel(arguments: Any?) {
-            dispose()
+            eventSink?.endOfStream()
+            eventSink = null
         }
+    }
+
+    fun getName(): String {
+        return name
     }
 
     init {
-        eventChannel = EventChannel(binaryMessenger, name)
-        eventChannel!!.setStreamHandler(streamHandler)
-    }
-
-
-    fun reset() {
-        if (eventChannel == null) {
-            eventChannel = EventChannel(binaryMessenger, name)
-            eventChannel!!.setStreamHandler(streamHandler)
-        }
+        eventChannel.setStreamHandler(streamHandler)
     }
 
 
@@ -44,14 +38,7 @@ class FlEvent(private val binaryMessenger: BinaryMessenger, private val name: St
                 eventSink?.success(args)
             }
         }
-        return eventSink != null && eventChannel != null
-    }
-
-    fun dispose() {
-        eventSink?.endOfStream()
-        eventSink = null
-        eventChannel?.setStreamHandler(null)
-        eventChannel = null
+        return eventSink != null
     }
 
 }

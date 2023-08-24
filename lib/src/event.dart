@@ -4,10 +4,10 @@ typedef FlEventListenData = void Function(dynamic data);
 typedef FlEventListenError = void Function(dynamic error);
 typedef FlEventListenDone = void Function();
 
-class FlEvent {
-  final String name;
-
-  FlEvent(this.name);
+class FlEvent extends EventChannel {
+  FlEvent(super.name, [super.codec, super.binaryMessenger]) {
+    _stream = receiveBroadcastStream(<dynamic, dynamic>{});
+  }
 
   /// 订阅流
   StreamSubscription<dynamic>? _streamSubscription;
@@ -17,30 +17,15 @@ class FlEvent {
 
   Stream<dynamic>? get stream => _stream;
 
-  /// 消息通道
-  EventChannel? _eventChannel;
-
-  bool get isInitialize => _eventChannel != null && _stream != null;
-
   bool get isPaused =>
       _streamSubscription != null && _streamSubscription!.isPaused;
-
-  /// 初始化消息通道
-  Future<FlEvent?> initialize() async {
-    if (!_supportPlatform) return null;
-    if (_eventChannel == null) {
-      _eventChannel = EventChannel(name);
-      _stream = _eventChannel?.receiveBroadcastStream(<dynamic, dynamic>{});
-    }
-    return this;
-  }
 
   /// 添加消息流监听
   bool listen<T>(FlEventListenData onData,
       {FlEventListenError? onError,
       FlEventListenDone? onDone,
       bool? cancelOnError}) {
-    if (_supportPlatform && _eventChannel != null && _stream != null) {
+    if (_supportPlatform && _stream != null) {
       if (_streamSubscription != null) return false;
       try {
         _streamSubscription = _stream!.listen(onData,
@@ -76,10 +61,9 @@ class FlEvent {
   }
 
   /// 关闭并销毁消息通道
-  Future<void> dispose() async {
+  Future<void> cancel() async {
     await _streamSubscription?.cancel();
     _streamSubscription = null;
     _stream = null;
-    _eventChannel = null;
   }
 }

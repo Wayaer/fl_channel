@@ -1,5 +1,3 @@
-import 'package:example/src/basic_message.dart';
-import 'package:example/src/basic_message_meth_call.dart';
 import 'package:example/src/event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,20 +25,6 @@ class App extends StatelessWidget {
               onPressed: () {
                 showCupertinoModalPopup(
                     context: context, builder: (_) => const FlEventPage());
-              }),
-          ElevatedText(
-              text: 'FlBasicMessage',
-              onPressed: () {
-                showCupertinoModalPopup(
-                    context: context,
-                    builder: (_) => const FlBasicMessagePage());
-              }),
-          ElevatedText(
-              text: 'FlBasicMessage MethodCall',
-              onPressed: () {
-                showCupertinoModalPopup(
-                    context: context,
-                    builder: (_) => const FlBasicMessageMethodCallPage());
               }),
         ]));
   }
