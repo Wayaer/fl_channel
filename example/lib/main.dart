@@ -31,7 +31,8 @@ class App extends StatelessWidget {
 }
 
 class TextBox extends StatelessWidget {
-  const TextBox(this.keyName, this.value, {Key? key}) : super(key: key);
+  const TextBox(this.keyName, this.value, {super.key});
+
   final dynamic keyName;
   final dynamic value;
 
@@ -52,9 +53,8 @@ class ElevatedText extends ElevatedButton {
 }
 
 class AppBarText extends AppBar {
-  AppBarText(String text, {Key? key})
+  AppBarText(String text, {super.key})
       : super(
-            key: key,
             elevation: 0,
             title: Text(text,
                 style:
