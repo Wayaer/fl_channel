@@ -16,6 +16,8 @@ class FlChannel {
 
   static FlChannel? _singleton;
 
+  static String name = 'fl_channel/event';
+
   final MethodChannel _channel = const MethodChannel('fl_channel');
 
   FlEvent? _flEvent;
@@ -24,7 +26,6 @@ class FlChannel {
 
   Future<FlEvent?> initFlEvent() async {
     if (_supportPlatform && _flEvent == null) {
-      const name = 'fl_channel/event';
       final state =
           await _channel.invokeMethod<bool?>('initFlEvent', {'name': name});
       if (state == true) return _flEvent = FlEvent(name);

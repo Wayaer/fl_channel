@@ -10,7 +10,7 @@ public class FlEvent: NSObject, FlutterStreamHandler {
         self.binaryMessenger = binaryMessenger
         eventChannel = FlutterEventChannel(name: name, binaryMessenger: binaryMessenger)
         super.init()
-        eventChannel!.setStreamHandler(self)
+        setStreamHandler()
     }
 
     public func send(_ args: Any?) -> Bool {
@@ -28,8 +28,16 @@ public class FlEvent: NSObject, FlutterStreamHandler {
     }
 
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        cancel()
+        return nil
+    }
+
+    func setStreamHandler() {
+        eventChannel?.setStreamHandler(self)
+    }
+
+    func cancel() {
         eventSink = nil
         eventChannel?.setStreamHandler(nil)
-        return nil
     }
 }

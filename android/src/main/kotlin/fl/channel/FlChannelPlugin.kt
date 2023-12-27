@@ -27,7 +27,7 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
             "initFlEvent" -> {
                 val name = call.argument<String>("name")!!
                 if (flEvent == null) {
-                    flEvent = FlEvent(plugin.binaryMessenger, name)
+                    flEvent = FlEvent(name, plugin.binaryMessenger)
                 }
                 result.success(true)
             }
@@ -38,6 +38,7 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
             }
 
             "disposeFlEvent" -> {
+                flEvent?.cancel()
                 flEvent = null
                 result.success(true)
             }

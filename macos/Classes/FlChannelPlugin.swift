@@ -29,6 +29,7 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
             let value = flEvent?.send(call.arguments)
             result(value ?? false)
         case "disposeFlEvent":
+            flEvent?.cancel()
             flEvent = nil
             result(true)
 
