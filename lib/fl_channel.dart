@@ -1,5 +1,3 @@
-library fl_channel;
-
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
