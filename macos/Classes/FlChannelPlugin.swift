@@ -4,7 +4,6 @@ import FlutterMacOS
 public class FlChannelPlugin: NSObject, FlutterPlugin {
     var channel: FlutterMethodChannel
     var messenger: FlutterBinaryMessenger
-    var flEvent: FlEvent?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "fl_channel", binaryMessenger: registrar.messenger)
@@ -18,28 +17,43 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
         super.init()
     }
 
+    private static var eventChannels: [String: FlEventChannel] = [:]
+
+    public static func getEventChannel(name: String) -> FlEventChannel? {
+        if eventChannels.keys.contains(name) {
+            return eventChannels[name]
+        }
+        return nil
+    }
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
-        case "initFlEvent":
-            let name = (call.arguments as! [String: Any])["name"] as! String
-            flEvent = nil
-            flEvent = FlEvent(name, messenger)
+        case "create":
+            let name = call.arguments as! String
+            if !FlChannelPlugin.eventChannels.keys.contains(name) {
+                let eventChannel = FlEventChannel(name, messenger)
+                FlChannelPlugin.eventChannels[name] = eventChannel
+            }
             result(true)
-        case "sendFlEventFromNative":
-            let value = flEvent?.send(call.arguments)
-            result(value ?? false)
-        case "disposeFlEvent":
-            flEvent?.cancel()
-            flEvent = nil
+        case "sendEventFromNative":
+            let args = call.arguments as! [String: Any]
+            let name = args["name"] as! String
+            let data = args["data"]
+            let state = FlChannelPlugin.getEventChannel(name: name)?.send(data)
+            result(state ?? false)
+        case "dispose":
+            let name = call.arguments as! String
+            if FlChannelPlugin.eventChannels.keys.contains(name) {
+                FlChannelPlugin.eventChannels[name]?.cancel()
+                FlChannelPlugin.eventChannels.removeValue(forKey: name)
+            }
             result(true)
-
         default:
             result(FlutterMethodNotImplemented)
         }
     }
 
     public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-        flEvent = nil
         channel.setMethodCallHandler(nil)
     }
 }

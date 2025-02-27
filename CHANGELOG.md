@@ -1,3 +1,7 @@
+## 1.0.0
+
+* Rewrite the creation and destruction methods
+
 ## 0.2.0
 
 * Update gradle version

@@ -1,6 +1,6 @@
 name: fl_channel
 description: channel for native communication,Support ios macos android only
-version: 0.2.0
+version: 1.0.0
 repository: https://github.com/Wayaer/fl_channel.git
 
 environment:

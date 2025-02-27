@@ -5,8 +5,8 @@ import android.os.Looper
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 
-class FlEvent(
-    name: String, messenger: BinaryMessenger,
+class FlEventChannel(
+    name: String, messenger: BinaryMessenger
 ) {
     private var eventSink: EventChannel.EventSink? = null
     private var eventChannel: EventChannel = EventChannel(messenger, name)
@@ -44,5 +44,4 @@ class FlEvent(
         }
         return eventSink != null
     }
-
 }

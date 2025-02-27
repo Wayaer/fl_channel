@@ -14,9 +14,9 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
 
 SPEC CHECKSUMS:
-  fl_channel: 3975f007f95c4f6445f05bac82cd7c59935cc5e3
+  fl_channel: 75aa961f4577c45afc7699c7585d7f76b45fe6cc
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
 
 PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.16.2

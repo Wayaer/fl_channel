@@ -1,7 +1,7 @@
 import Flutter
 import Foundation
 
-public class FlEvent: NSObject, FlutterStreamHandler {
+public class FlEventChannel: NSObject, FlutterStreamHandler {
     private var eventSink: FlutterEventSink?
     private var eventChannel: FlutterEventChannel?
     private var binaryMessenger: FlutterBinaryMessenger

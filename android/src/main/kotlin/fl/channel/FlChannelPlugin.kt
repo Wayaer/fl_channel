@@ -13,7 +13,10 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var plugin: FlutterPlugin.FlutterPluginBinding
 
     companion object {
-        var flEvent: FlEvent? = null
+        private var eventChannels: MutableMap<String, FlEventChannel> = mutableMapOf()
+        fun getEventChannel(name: String): FlEventChannel? {
+            return eventChannels[name]
+        }
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -24,22 +27,28 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
-            "initFlEvent" -> {
-                val name = call.argument<String>("name")!!
-                if (flEvent == null) {
-                    flEvent = FlEvent(name, plugin.binaryMessenger)
+            "create" -> {
+                val name = call.arguments as String
+                if (!eventChannels.containsKey(name)) {
+                    val eventChannel = FlEventChannel(name, plugin.binaryMessenger)
+                    eventChannels[name] = eventChannel
                 }
                 result.success(true)
             }
 
-            "sendFlEventFromNative" -> {
-                val value = flEvent?.send(call.arguments)
-                result.success(value)
+            "sendEventFromNative" -> {
+                val args = call.arguments as Map<*, *>
+                val name = args["name"] as String;
+                val data = args["data"] as Any;
+                result.success(getEventChannel(name)?.send(data) ?: false)
             }
 
-            "disposeFlEvent" -> {
-                flEvent?.cancel()
-                flEvent = null
+            "dispose" -> {
+                val name = call.arguments as String
+                if (eventChannels.containsKey(name)) {
+                    getEventChannel(name)?.cancel()
+                    eventChannels.remove(name)
+                }
                 result.success(true)
             }
         }
@@ -47,7 +56,6 @@ class FlChannelPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
-        flEvent = null
     }
 
 }
