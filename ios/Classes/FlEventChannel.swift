@@ -36,7 +36,7 @@ public class FlEventChannel: NSObject, FlutterStreamHandler {
         eventChannel?.setStreamHandler(self)
     }
 
-    func cancel() {
+    public func cancel() {
         eventSink = nil
         eventChannel?.setStreamHandler(nil)
     }

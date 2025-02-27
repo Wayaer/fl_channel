@@ -19,7 +19,7 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
 
     private static var eventChannels: [String: FlEventChannel] = [:]
 
-    public static func getEventChannel(name: String) -> FlEventChannel? {
+    public static func getEventChannel(_ name: String) -> FlEventChannel? {
         if eventChannels.keys.contains(name) {
             return eventChannels[name]
         }
@@ -29,20 +29,20 @@ public class FlChannelPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "create":
-            var name = call.arguments as! String
+            let name = call.arguments as! String
             if !FlChannelPlugin.eventChannels.keys.contains(name) {
-                var eventChannel = FlEventChannel(name, messenger)
+                let eventChannel = FlEventChannel(name, messenger)
                 FlChannelPlugin.eventChannels[name] = eventChannel
             }
             result(true)
         case "sendEventFromNative":
-            var args = call.arguments as! [String: Any]
-            var name = args["name"] as! String
-            var data = args["data"]
-            var state = FlChannelPlugin.getEventChannel(name: name)?.send(data)
+            let args = call.arguments as! [String: Any]
+            let name = args["name"] as! String
+            let data = args["data"]
+            let state = FlChannelPlugin.getEventChannel(name)?.send(data)
             result(state ?? false)
         case "dispose":
-            var name = call.arguments as! String
+            let name = call.arguments as! String
             if FlChannelPlugin.eventChannels.keys.contains(name) {
                 FlChannelPlugin.eventChannels[name]?.cancel()
                 FlChannelPlugin.eventChannels.removeValue(forKey: name)
