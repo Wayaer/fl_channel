@@ -105,16 +105,9 @@ class _FlEventPageState extends State<FlEventPage> {
 
   Future<void> _dispose() async {
     await flEvent?.dispose();
-    FlChannel().dispose(name);
     stateText = 'successful';
     texts = [];
     setState(() {});
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    FlChannel().dispose(name);
   }
 }
 

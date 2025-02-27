@@ -24,7 +24,7 @@ class FlChannel {
   }
 
   /// 销毁默认消息通道
-  Future<bool> defaultDispose() => dispose(_name);
+  Future<bool> defaultDispose() => _dispose(_name);
 
   /// 全局消息通道
   final Map<String, FlEventChannel> _eventChannels = {};
@@ -41,7 +41,8 @@ class FlChannel {
     return null;
   }
 
-  Future<bool> dispose(String name) async {
+  /// 销毁
+  Future<bool> _dispose(String name) async {
     if (!_eventChannels.containsKey(name)) return true;
     final result = await _channel.invokeMethod<bool>('dispose', name);
     if (result == true) _eventChannels.remove(name);
@@ -131,7 +132,7 @@ class FlEventChannel extends EventChannel {
     await _streamSubscription?.cancel();
     _streamSubscription = null;
     _stream = null;
-    return await FlChannel().dispose(name);
+    return await FlChannel()._dispose(name);
   }
 }
 
