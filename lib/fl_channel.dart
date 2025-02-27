@@ -14,13 +14,17 @@ class FlChannel {
 
   final String _name = 'fl_channel/event';
 
-  Future<FlEventChannel?> get defaultEventChannel async {
+  /// 默认消息通道
+  Future<FlEventChannel?> defaultEventChannel() async {
     if (_eventChannels.containsKey(_name)) {
       return _eventChannels[_name]!;
     } else {
       return await create(_name);
     }
   }
+
+  /// 销毁默认消息通道
+  Future<bool> defaultDispose() => dispose(_name);
 
   /// 全局消息通道
   final Map<String, FlEventChannel> _eventChannels = {};
@@ -47,9 +51,11 @@ class FlChannel {
   Future<bool> sendEventFromNative(String name, dynamic data) async {
     if (!_supportPlatform) return false;
     if (!_eventChannels.containsKey(name)) return false;
-    return (await _channel.invokeMethod(
-            'sendEventFromNative', {'name': name, 'data': data})) ??
-        false;
+    final result = await _channel.invokeMethod('sendEventFromNative', {
+      'name': name,
+      'data': data,
+    });
+    return result ?? false;
   }
 }
 
@@ -76,14 +82,20 @@ class FlEventChannel extends EventChannel {
       _streamSubscription != null && _streamSubscription!.isPaused;
 
   /// 添加消息流监听
-  bool listen<T>(FlEventChannelListenData onData,
-      {FlEventChannelListenError? onError,
-      VoidCallback? onDone,
-      bool? cancelOnError}) {
+  bool listen<T>(
+    FlEventChannelListenData onData, {
+    FlEventChannelListenError? onError,
+    VoidCallback? onDone,
+    bool? cancelOnError,
+  }) {
     if (_supportPlatform && _stream != null && _streamSubscription == null) {
       try {
-        _streamSubscription = _stream!.listen(onData,
-            onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+        _streamSubscription = _stream!.listen(
+          onData,
+          onError: onError,
+          onDone: onDone,
+          cancelOnError: cancelOnError,
+        );
         return true;
       } catch (e) {
         debugPrint(e.toString());

@@ -1,4 +1,4 @@
-## 1.0.0
+## 1.0.1
 
 * Rewrite the creation and destruction methods
 
