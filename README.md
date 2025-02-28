@@ -1,6 +1,6 @@
 # fl_channel
 
-- `FlEvent()` `EventChannel` 封装
+- `FlChannel()`、`FlEventChannel()` 。`EventChannel` 封装
 ```dart
 Future<void> create() async {
   final flEvent = await FlChannel().create(name);
