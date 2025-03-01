@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.fl.channel.example"
+    namespace = "fl.channel.example"
     compileSdk = flutter.compileSdkVersion
 
     compileOptions {
@@ -18,7 +18,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.fl.channel.example"
+        applicationId = "fl.channel.example"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
