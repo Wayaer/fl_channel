@@ -1,6 +1,7 @@
-## 1.0.2
+## 1.0.3
 
 * Rewrite the creation and destruction methods
+* JavaVersion to `JavaVersion.VERSION_17`
 
 ## 0.2.0
 
