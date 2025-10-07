@@ -1,6 +1,6 @@
 name: fl_channel
 description: channel for native communication,Support ios macos android only
-version: 1.0.3
+version: 1.1.0
 repository: https://github.com/Wayaer/fl_channel.git
 
 environment:
@@ -23,4 +23,6 @@ flutter:
       ios:
         pluginClass: FlChannelPlugin
       macos:
+        pluginClass: FlChannelPlugin
+      ohos:
         pluginClass: FlChannelPlugin

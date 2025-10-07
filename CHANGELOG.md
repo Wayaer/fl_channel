@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Add the `ohos` platform support
+
 ## 1.0.3
 
 * Rewrite the creation and destruction methods

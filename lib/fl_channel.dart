@@ -10,6 +10,8 @@ class FlChannel {
 
   static FlChannel? _singleton;
 
+  static FlChannel get instance => FlChannel();
+
   final MethodChannel _channel = const MethodChannel('fl_channel');
 
   final String _name = 'fl_channel/event';
@@ -164,5 +166,6 @@ bool get _supportPlatform {
   if (kIsWeb) return false;
   return defaultTargetPlatform == TargetPlatform.macOS ||
       defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform.name == 'ohos' ||
       defaultTargetPlatform == TargetPlatform.android;
 }

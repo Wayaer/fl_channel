@@ -97,15 +97,15 @@ class _FlEventPageState extends State<FlEventPage> {
   Future<void> sendFromNative() async {
     final status = await FlChannel().sendEventFromNative(
       name,
-      'Flutter to Native',
+        'Flutter to Native'
     );
-    stateText = status ? 'successful' : 'failed';
+    stateText = 'send event from native ${status ? 'successful' : 'failed'}';
     setState(() {});
   }
 
   Future<void> _dispose() async {
     await flEvent?.dispose();
-    stateText = 'successful';
+    stateText = 'dispose successful';
     texts = [];
     setState(() {});
   }
