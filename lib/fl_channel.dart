@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class FlChannel {
-  factory FlChannel() => _singleton ??= FlChannel._();
+  factory FlChannel() => _instance;
 
   FlChannel._();
 
-  static FlChannel? _singleton;
+  static final FlChannel _instance = FlChannel._();
 
   static FlChannel get instance => FlChannel();
 
@@ -81,8 +81,7 @@ class FlEventChannel extends EventChannel {
 
   Stream<dynamic>? get stream => _stream;
 
-  bool get isPaused =>
-      _streamSubscription != null && _streamSubscription!.isPaused;
+  bool get isPaused => _streamSubscription != null && _streamSubscription!.isPaused;
 
   /// 添加消息流监听
   bool listen<T>(
@@ -109,9 +108,7 @@ class FlEventChannel extends EventChannel {
 
   /// 暂停消息流监听
   bool pause() {
-    if (_supportPlatform &&
-        _streamSubscription != null &&
-        !_streamSubscription!.isPaused) {
+    if (_supportPlatform && _streamSubscription != null && !_streamSubscription!.isPaused) {
       _streamSubscription!.pause();
       return true;
     }
@@ -120,9 +117,7 @@ class FlEventChannel extends EventChannel {
 
   /// 重新开始监听
   bool resume() {
-    if (_supportPlatform &&
-        _streamSubscription != null &&
-        _streamSubscription!.isPaused) {
+    if (_supportPlatform && _streamSubscription != null && _streamSubscription!.isPaused) {
       _streamSubscription!.resume();
       return true;
     }
