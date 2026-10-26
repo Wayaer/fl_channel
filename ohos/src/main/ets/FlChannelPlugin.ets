@@ -1,5 +1,5 @@
 import {
-  Any,
+  BinaryMessenger,
   FlutterPlugin,
   FlutterPluginBinding,
   MethodCall,
@@ -11,7 +11,7 @@ import FlEventChannel from './FlEventChannel';
 
 export default class FlChannelPlugin implements FlutterPlugin, MethodCallHandler {
   private channel: MethodChannel | null = null;
-  private plugin: FlutterPluginBinding | null = null
+  private messenger: BinaryMessenger | null = null;
   private static eventChannels: Map<string, FlEventChannel> = new Map();
 
   static getEventChannel(name: string): FlEventChannel | undefined {
@@ -22,40 +22,46 @@ export default class FlChannelPlugin implements FlutterPlugin, MethodCallHandler
   }
 
   getUniqueClassName(): string {
-    return "FlChannelPlugin"
+    return 'FlChannelPlugin';
   }
 
   onAttachedToEngine(binding: FlutterPluginBinding): void {
-    this.channel = new MethodChannel(binding.getBinaryMessenger(), "fl_channel");
-    this.channel.setMethodCallHandler(this)
-    this.plugin = binding
+    const messenger = binding.getBinaryMessenger();
+    this.messenger = messenger;
+    this.channel = new MethodChannel(messenger, 'fl_channel');
+    this.channel.setMethodCallHandler(this);
   }
 
   onDetachedFromEngine(binding: FlutterPluginBinding): void {
     if (this.channel != null) {
-      this.channel.setMethodCallHandler(null)
+      this.channel.setMethodCallHandler(null);
     }
-    this.plugin = null
+    this.channel = null;
+    FlChannelPlugin.eventChannels.forEach((eventChannel: FlEventChannel) => {
+      eventChannel.cancel();
+    });
+    FlChannelPlugin.eventChannels.clear();
+    this.messenger = null;
   }
 
   onMethodCall(call: MethodCall, result: MethodResult): void {
     switch (call.method) {
-      case "create": {
+      case 'create': {
         const name = call.args as string;
-        if (!FlChannelPlugin.eventChannels.has(name) && this.plugin) {
-          const eventChannel = new FlEventChannel(name, this.plugin.getBinaryMessenger());
-          FlChannelPlugin.eventChannels.set(name, eventChannel);
+        const messenger = this.messenger;
+        if (messenger != null && !FlChannelPlugin.eventChannels.has(name)) {
+          FlChannelPlugin.eventChannels.set(name, new FlEventChannel(name, messenger));
         }
         result.success(true);
         break;
       }
-      case "sendEventFromNative": {
-        const name = call.argument('name') as string
+      case 'sendEventFromNative': {
+        const name = call.argument('name') as string;
         const success = FlChannelPlugin.getEventChannel(name)?.send(call.argument('data')) ?? false;
         result.success(success);
         break;
       }
-      case "dispose": {
+      case 'dispose': {
         const name = call.args as string;
         if (FlChannelPlugin.eventChannels.has(name)) {
           FlChannelPlugin.getEventChannel(name)?.cancel();

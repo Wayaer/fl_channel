@@ -1,9 +1,9 @@
 {
   "name": "fl_channel",
-  "version": "1.0.0",
-  "description": "Please describe the basic information.",
+  "version": "2.0.0",
+  "description": "Native channel communication for Flutter on HarmonyOS (OHOS).",
   "main": "index.ets",
-  "author": "",
-  "license": "Apache-2.0",
+  "author": "Wayaer",
+  "license": "MIT",
   "dependencies": {}
 }

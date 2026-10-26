@@ -1,16 +1,22 @@
-group 'fl.channel'
-version '1.0'
-
 buildscript {
+    ext.kotlin_version = '2.4.0'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.2'
+        classpath 'com.android.tools.build:gradle:9.1.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
+plugins {
+    id 'com.android.library'
+}
+
+group 'fl.channel'
+version '2.0.0'
 
 allprojects {
     repositories {
@@ -19,23 +25,13 @@ allprojects {
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-
 android {
-    compileSdk = 34
-
-    if (project.android.hasProperty("namespace")) {
-        namespace 'fl.channel'
-    }
+    namespace 'fl.channel'
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     sourceSets {
@@ -43,7 +39,12 @@ android {
     }
 
     defaultConfig {
-        minSdk = 16
+        minSdk = 24
     }
+}
 
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
 }

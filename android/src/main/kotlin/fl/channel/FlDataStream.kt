@@ -9,11 +9,9 @@ class FlDataStream<T> {
 
     private val dataHandlers: MutableList<FlDataStreamHandler<T>> = ArrayList()
 
-    // 发送数据
+    // 发送数据，遍历期间允许监听器自行取消监听
     fun send(data: T) {
-        for (handler in dataHandlers) {
-            handler(data)
-        }
+        dataHandlers.toList().forEach { handler -> handler(data) }
     }
 
     // 监听数据
@@ -23,8 +21,7 @@ class FlDataStream<T> {
     }
 
     // 取消监听
-    private fun cancel(handler: FlDataStreamHandler<T>) {
+    fun cancel(handler: FlDataStreamHandler<T>) {
         dataHandlers.remove(handler)
     }
-
 }

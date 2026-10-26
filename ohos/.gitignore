@@ -8,3 +8,5 @@
 /.test
 /BuildProfile.ets
 /oh-package-lock.json5
+/package.json
+/package-lock.json

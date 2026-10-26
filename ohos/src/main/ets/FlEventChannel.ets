@@ -9,7 +9,7 @@ export default class FlEventChannel {
       this.eventSink = events;
     },
     onCancel: () => {
-      this.cancel();
+      this.eventSink = null;
     }
   } as StreamHandler;
 
@@ -24,15 +24,17 @@ export default class FlEventChannel {
   }
 
   public cancel(): void {
-    this.eventSink?.endOfStream();
+    const sink = this.eventSink;
     this.eventSink = null;
+    sink?.endOfStream();
   }
 
   public send(args: Any): boolean {
-    if (this.eventSink) {
-      this.eventSink?.success(args);
-      return true;
+    const sink = this.eventSink;
+    if (sink == null) {
+      return false;
     }
-    return false;
+    sink.success(args);
+    return true;
   }
 }

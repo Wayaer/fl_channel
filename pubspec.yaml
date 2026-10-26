@@ -1,17 +1,32 @@
 name: fl_channel
-description: channel for native communication,Support ios macos android only
-version: 1.1.1
+description: >-
+  Native channel communication for Flutter on Android, iOS, macOS, Windows,
+  Linux, Web and HarmonyOS (OHOS), with event channels, lifecycle control and
+  native messaging.
+version: 2.0.0
+homepage: https://github.com/Wayaer/fl_channel
 repository: https://github.com/Wayaer/fl_channel.git
+issue_tracker: https://github.com/Wayaer/fl_channel/issues
+topics:
+  - flutter
+  - plugin
+  - event-channel
+  - method-channel
+  - ohos
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.5.0 <4.0.0'
   flutter: '>=3.24.0'
 
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   flutter_lints: ^5.0.0
 
 flutter:
@@ -22,7 +37,16 @@ flutter:
         pluginClass: FlChannelPlugin
       ios:
         pluginClass: FlChannelPlugin
+        sharedDarwinSource: true
       macos:
         pluginClass: FlChannelPlugin
+        sharedDarwinSource: true
+      windows:
+        pluginClass: FlChannelPluginCApi
+      linux:
+        pluginClass: FlChannelPlugin
+      web:
+        pluginClass: FlChannelWeb
+        fileName: fl_channel_web.dart
       ohos:
         pluginClass: FlChannelPlugin

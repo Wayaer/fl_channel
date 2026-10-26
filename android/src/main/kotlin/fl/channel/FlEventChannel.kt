@@ -5,11 +5,9 @@ import android.os.Looper
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 
-class FlEventChannel(
-    name: String, messenger: BinaryMessenger
-) {
+class FlEventChannel(name: String, messenger: BinaryMessenger) {
     private var eventSink: EventChannel.EventSink? = null
-    private var eventChannel: EventChannel = EventChannel(messenger, name)
+    private val eventChannel: EventChannel = EventChannel(messenger, name)
     private val handler = Handler(Looper.getMainLooper())
     private val streamHandler = object : EventChannel.StreamHandler {
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
@@ -17,7 +15,7 @@ class FlEventChannel(
         }
 
         override fun onCancel(arguments: Any?) {
-            cancel()
+            eventSink = null
         }
     }
 
@@ -35,13 +33,9 @@ class FlEventChannel(
         eventChannel.setStreamHandler(null)
     }
 
-
-    fun send(args: Any): Boolean {
-        if (eventSink != null) {
-            handler.post {
-                eventSink?.success(args)
-            }
-        }
-        return eventSink != null
+    fun send(data: Any?): Boolean {
+        val sink = eventSink ?: return false
+        handler.post { sink.success(data) }
+        return true
     }
 }

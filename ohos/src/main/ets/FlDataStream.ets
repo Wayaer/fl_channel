@@ -9,9 +9,10 @@ export default class FlDataStream<T> {
   // 存储数据处理函数的列表
   private dataHandlers: FlDataStreamHandler<T>[] = [];
 
-  // 发送数据到所有监听者
+  // 发送数据到所有监听者，遍历期间允许监听器自行取消监听
   send(data: T): void {
-    for (const handler of this.dataHandlers) {
+    const handlers = this.dataHandlers.slice();
+    for (const handler of handlers) {
       handler(data);
     }
   }
@@ -24,6 +25,9 @@ export default class FlDataStream<T> {
 
   // 取消特定的监听
   private cancel(handler: FlDataStreamHandler<T>): void {
-    this.dataHandlers = this.dataHandlers.filter(h => h !== handler);
+    const index = this.dataHandlers.indexOf(handler);
+    if (index >= 0) {
+      this.dataHandlers.splice(index, 1);
+    }
   }
 }

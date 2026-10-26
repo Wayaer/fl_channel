@@ -1,129 +1,118 @@
+import 'package:example/data_stream_page.dart';
+import 'package:example/event_channel_page.dart';
 import 'package:fl_channel/fl_channel.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(App());
+  runApp(const App());
 }
 
 class App extends StatelessWidget {
   const App({super.key});
 
+  static const Color seedColor = Color(0xFF0F766E);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.light(useMaterial3: true),
-      darkTheme: ThemeData.dark(useMaterial3: true),
+      title: 'fl_channel',
       debugShowCheckedModeBanner: false,
-      title: 'FlChannel',
-      home: Scaffold(
-        appBar: AppBarText('FlChannel'),
-        body: Padding(padding: const EdgeInsets.all(8.0), child: FlEventPage()),
+      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: seedColor), useMaterial3: true),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.dark),
+        useMaterial3: true,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('fl_channel'), centerTitle: true),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: <Widget>[
+          const _PlatformCard(),
+          const SizedBox(height: 16),
+          _DemoTile(
+            icon: Icons.swap_horiz,
+            title: 'Event channel',
+            subtitle: 'Create a native event channel and control its lifecycle.',
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const EventChannelPage()));
+            },
+          ),
+          const SizedBox(height: 12),
+          _DemoTile(
+            icon: Icons.stream,
+            title: 'Data stream',
+            subtitle: 'Broadcast values to multiple listeners with FlDataStream.',
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const DataStreamPage()));
+            },
+          ),
+        ],
       ),
     );
   }
 }
 
-class FlEventPage extends StatefulWidget {
-  const FlEventPage({super.key});
-
-  @override
-  State<FlEventPage> createState() => _FlEventPageState();
-}
-
-class _FlEventPageState extends State<FlEventPage> {
-  List<String> texts = [];
-
-  String name = 'event_test';
-
-  String stateText = 'uninitialized';
-
-  FlEventChannel? flEvent;
+class _PlatformCard extends StatelessWidget {
+  const _PlatformCard();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text('FlEvent : $stateText'),
-        Wrap(
-          spacing: 8,
-          direction: Axis.horizontal,
-          alignment: WrapAlignment.center,
-          children: [
-            ElevatedText('create', onPressed: create),
-            ElevatedText('listen', onPressed: listen),
-            ElevatedText('send from native', onPressed: sendFromNative),
-            ElevatedText(
-              'pause',
-              onPressed: () {
-                stateText = 'pause ${flEvent?.pause()}';
-                setState(() {});
-              },
-            ),
-            ElevatedText(
-              'resume',
-              onPressed: () {
-                stateText = 'resume ${flEvent?.resume()}';
-                setState(() {});
-              },
-            ),
-            ElevatedText('dispose', onPressed: _dispose),
-          ],
+    final ThemeData theme = Theme.of(context);
+    final bool supported = FlChannel.instance.isSupported;
+    final String platform = kIsWeb ? 'Web' : defaultTargetPlatform.name;
+    final Color color = supported ? theme.colorScheme.primary : theme.colorScheme.error;
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: ListTile(
+        leading: Icon(supported ? Icons.bolt : Icons.block, color: color),
+        title: Text('Running on $platform'),
+        subtitle: Text(
+          supported ? 'Native channels are available.' : 'Native channels are not supported on this platform.',
         ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: texts.length,
-            itemBuilder: (_, int index) => Text(texts[index]),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
+          child: Text(
+            supported ? 'Supported' : 'Unsupported',
+            style: theme.textTheme.labelMedium?.copyWith(color: color, fontWeight: FontWeight.w600),
           ),
         ),
-      ],
+      ),
     );
-  }
-
-  Future<void> create() async {
-    flEvent = await FlChannel().create(name);
-    stateText = 'create ${flEvent != null} ';
-    setState(() {});
-  }
-
-  void listen() {
-    final state = flEvent?.listen((dynamic data) {
-      texts.insert(0, '${DateTime.now().toString().split('.').first} : $data');
-      setState(() {});
-    });
-    stateText = 'add listener ${state ?? false}';
-    setState(() {});
-  }
-
-  Future<void> sendFromNative() async {
-    final status = await FlChannel().sendEventFromNative(
-      name,
-        'Flutter to Native'
-    );
-    stateText = 'send event from native ${status ? 'successful' : 'failed'}';
-    setState(() {});
-  }
-
-  Future<void> _dispose() async {
-    await flEvent?.dispose();
-    stateText = 'dispose successful';
-    texts = [];
-    setState(() {});
   }
 }
 
-class ElevatedText extends ElevatedButton {
-  ElevatedText(String text, {super.key, required super.onPressed})
-    : super(child: Text(text));
-}
+class _DemoTile extends StatelessWidget {
+  const _DemoTile({required this.icon, required this.title, required this.subtitle, required this.onTap});
 
-class AppBarText extends AppBar {
-  AppBarText(String text, {super.key})
-    : super(
-        elevation: 0,
-        title: Text(
-          text,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      );
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
+        leading: CircleAvatar(child: Icon(icon)),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
+      ),
+    );
+  }
 }
